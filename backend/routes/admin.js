@@ -13,8 +13,7 @@ router.get('/', isAdmin, async (req, res) => {
     const totalProducts = await Product.countDocuments();
     const totalUsers = await User.countDocuments();
     
-    res.render('admin/dashboard', {
-      title: 'Admin Dashboard',
+    res.json({
       products,
       users,
       totalProducts,
@@ -22,8 +21,7 @@ router.get('/', isAdmin, async (req, res) => {
     });
   } catch (err) {
     console.error('Admin dashboard error:', err);
-    req.flash('error_msg', 'Error loading admin dashboard');
-    res.redirect('/');
+    res.status(500).json({ error: 'Error loading admin dashboard' });
   }
 });
 
@@ -31,14 +29,10 @@ router.get('/', isAdmin, async (req, res) => {
 router.get('/products', isAdmin, async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
-    res.render('admin/products', {
-      title: 'Admin - Product Management',
-      products
-    });
+    res.json({ products });
   } catch (err) {
     console.error('Admin products error:', err);
-    req.flash('error_msg', 'Error loading products');
-    res.redirect('/admin');
+    res.status(500).json({ error: 'Error loading products' });
   }
 });
 
@@ -46,60 +40,57 @@ router.get('/products', isAdmin, async (req, res) => {
 router.get('/users', isAdmin, async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
-    res.render('admin/users', {
-      title: 'Admin - User Management',
-      users
-    });
+    res.json({ users });
   } catch (err) {
     console.error('Admin users error:', err);
-    req.flash('error_msg', 'Error loading users');
-    res.redirect('/admin');
+    res.status(500).json({ error: 'Error loading users' });
   }
 });
 
 // Toggle user admin status
-router.post('/users/:id/toggle-admin', isAdmin, async (req, res) => {
+router.put('/users/:id/toggle-admin', isAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      req.flash('error_msg', 'User not found');
-      return res.redirect('/admin/users');
+      return res.status(404).json({ error: 'User not found' });
     }
     
     user.isAdmin = !user.isAdmin;
     await user.save();
     
-    req.flash('success_msg', `User ${user.username} admin status updated`);
-    res.redirect('/admin/users');
+    res.json({ 
+      message: `User ${user.username} admin status updated`,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin
+      }
+    });
   } catch (err) {
     console.error('Toggle admin error:', err);
-    req.flash('error_msg', 'Error updating user');
-    res.redirect('/admin/users');
+    res.status(500).json({ error: 'Error updating user' });
   }
 });
 
 // Delete user
-router.post('/users/:id/delete', isAdmin, async (req, res) => {
+router.delete('/users/:id', isAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      req.flash('error_msg', 'User not found');
-      return res.redirect('/admin/users');
+      return res.status(404).json({ error: 'User not found' });
     }
     
     // Prevent admin from deleting themselves
     if (user._id.toString() === req.session.user._id.toString()) {
-      req.flash('error_msg', 'You cannot delete your own account');
-      return res.redirect('/admin/users');
+      return res.status(400).json({ error: 'You cannot delete your own account' });
     }
     
     await User.findByIdAndDelete(req.params.id);
-    req.flash('success_msg', 'User deleted successfully');
-    res.redirect('/admin/users');
+    res.json({ message: 'User deleted successfully' });
   } catch (err) {
     console.error('Delete user error:', err);
-    req.flash('error_msg', 'Error deleting user');
-    res.redirect('/admin/users');
+    res.status(500).json({ error: 'Error deleting user' });
   }
 });
 

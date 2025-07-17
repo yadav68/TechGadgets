@@ -13,8 +13,7 @@ router.get('/', (req, res) => {
     total += item.price * item.quantity;
   });
   
-  res.render('cart/index', { 
-    title: 'Shopping Cart', 
+  res.json({ 
     cart, 
     total: total.toFixed(2) 
   });
@@ -25,8 +24,7 @@ router.post('/add/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
-      req.flash('error_msg', 'Product not found');
-      return res.redirect('/products');
+      return res.status(404).json({ error: 'Product not found' });
     }
     
     // Initialize cart if it doesn't exist
@@ -49,37 +47,38 @@ router.post('/add/:id', async (req, res) => {
       });
     }
     
-    req.flash('success_msg', 'Item added to cart');
-    res.redirect('/cart');
+    res.json({ 
+      message: 'Item added to cart',
+      cart: req.session.cart
+    });
   } catch (err) {
     console.error('Add to cart error:', err);
-    req.flash('error_msg', 'Error adding item to cart');
-    res.redirect('/products');
+    res.status(500).json({ error: 'Error adding item to cart' });
   }
 });
 
 // Remove item from cart
-router.post('/remove/:id', (req, res) => {
+router.delete('/remove/:id', (req, res) => {
   if (!req.session.cart) {
-    req.flash('error_msg', 'Cart is empty');
-    return res.redirect('/cart');
+    return res.status(400).json({ error: 'Cart is empty' });
   }
   
   const itemId = req.params.id;
   req.session.cart = req.session.cart.filter(item => item._id.toString() !== itemId);
   
-  req.flash('success_msg', 'Item removed from cart');
-  res.redirect('/cart');
+  res.json({ 
+    message: 'Item removed from cart',
+    cart: req.session.cart
+  });
 });
 
 // Update item quantity
-router.post('/update/:id', (req, res) => {
+router.put('/update/:id', (req, res) => {
   const { quantity } = req.body;
   const itemId = req.params.id;
   
   if (!req.session.cart) {
-    req.flash('error_msg', 'Cart is empty');
-    return res.redirect('/cart');
+    return res.status(400).json({ error: 'Cart is empty' });
   }
   
   const item = req.session.cart.find(item => item._id.toString() === itemId);
@@ -91,15 +90,16 @@ router.post('/update/:id', (req, res) => {
     }
   }
   
-  req.flash('success_msg', 'Cart updated');
-  res.redirect('/cart');
+  res.json({ 
+    message: 'Cart updated',
+    cart: req.session.cart
+  });
 });
 
 // Clear cart
-router.post('/clear', (req, res) => {
+router.delete('/clear', (req, res) => {
   req.session.cart = [];
-  req.flash('success_msg', 'Cart cleared');
-  res.redirect('/cart');
+  res.json({ message: 'Cart cleared' });
 });
 
 export default router; 
