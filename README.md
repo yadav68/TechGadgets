@@ -5,8 +5,8 @@ A full-stack e-commerce website for tech gadgets and accessories built with Expr
 ## Features
 - Product catalog
 - User registration and login
-- Shopping cart (coming soon)
-- Admin panel (coming soon)
+- Shopping cart 
+- Admin panel 
 
 ## Setup
 
