@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Tech Gadgets & Accessories</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+      <a href="/cart">Cart</a>
+      <% if (!user) { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } else { %>
+        <a href="/logout">Logout</a>
+        <% if (user.isAdmin) { %>
+          <a href="/admin">Admin</a>
+        <% } %>
+      <% } %>
+    </nav>
+  </header>
+  <main>
+    <% if (success_msg && String(success_msg).trim()) { %>
+      <div class="flash-message success"><%= success_msg %></div>
+    <% } %>
+    <% if (error_msg && String(error_msg).trim()) { %>
+      <div class="flash-message"><%= error_msg %></div>
+    <% } %>
+    <% if (error && String(error).trim()) { %>
+      <div class="flash-message"><%= error %></div>
+    <% } %>
+    
+    <h2>Shopping Cart</h2>
+    
+    <% if (cart.length === 0) { %>
+      <div class="cart-empty">
+        <p>Your cart is empty.</p>
+        <a href="/products" class="btn">Continue Shopping</a>
+      </div>
+    <% } else { %>
+      <div class="cart-container">
+        <div class="cart-items">
+          <% cart.forEach(item => { %>
+            <div class="cart-item">
+              <div class="cart-item-image">
+                <% if (item.image) { %>
+                  <img src="<%= item.image %>" alt="<%= item.name %>" />
+                <% } else { %>
+                  <div class="no-image">No Image</div>
+                <% } %>
+              </div>
+              <div class="cart-item-details">
+                <h3><%= item.name %></h3>
+                <p class="cart-item-price">$<%= item.price.toFixed(2) %></p>
+                <div class="cart-item-quantity">
+                  <form action="/cart/update/<%= item._id %>" method="POST" style="display: inline;">
+                    <label for="quantity-<%= item._id %>">Quantity:</label>
+                    <input 
+                      type="number" 
+                      id="quantity-<%= item._id %>"
+                      name="quantity" 
+                      value="<%= item.quantity %>" 
+                      min="1" 
+                      max="99"
+                      style="width: 60px; margin: 0 10px;"
+                    />
+                    <button type="submit" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Update</button>
+                  </form>
+                </div>
+                <p class="cart-item-subtotal">Subtotal: $<%= (item.price * item.quantity).toFixed(2) %></p>
+              </div>
+              <div class="cart-item-actions">
+                <form action="/cart/remove/<%= item._id %>" method="POST">
+                  <button type="submit" class="btn btn-danger">Remove</button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        
+        <div class="cart-summary">
+          <h3>Order Summary</h3>
+          <div class="cart-total">
+            <strong>Total: $<%= total %></strong>
+          </div>
+          <div class="cart-actions">
+            <a href="/products" class="btn">Continue Shopping</a>
+            <form action="/cart/clear" method="POST" style="display: inline;">
+              <button type="submit" class="btn btn-danger">Clear Cart</button>
+            </form>
+            <button class="btn" style="background: linear-gradient(135deg, #28a745, #20c997);">Checkout</button>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </main>
+  <footer>
+    <p>&copy; <%= new Date().getFullYear() %> Tech Gadgets. All rights reserved.</p>
+  </footer>
+</body>
+</html> 

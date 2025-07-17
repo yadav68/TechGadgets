@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      background: linear-gradient(90deg, #e0eafc 0%, #cfdef3 100%);
+      border-radius: 16px;
+      margin: 2rem auto 2rem auto;
+      max-width: 700px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      padding: 3rem 2rem;
+    }
+    .hero h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #222;
+    }
+    .hero p {
+      font-size: 1.3rem;
+      color: #444;
+      margin-bottom: 2rem;
+    }
+    .hero .btn {
+      font-size: 1.2rem;
+      padding: 1rem 2.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tech Gadgets & Accessories</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+      <a href="/cart">Cart</a>
+      <% if (!user) { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } else { %>
+        <a href="/logout">Logout</a>
+        <% if (user.isAdmin) { %>
+          <a href="/admin">Admin</a>
+        <% } %>
+      <% } %>
+    </nav>
+  </header>
+  <main>
+    <% if (success_msg && String(success_msg).trim()) { %>
+      <div class="flash-message success"><%= success_msg %></div>
+    <% } %>
+    <% if (error_msg && String(error_msg).trim()) { %>
+      <div class="flash-message"><%= error_msg %></div>
+    <% } %>
+    <% if (error && String(error).trim()) { %>
+      <div class="flash-message"><%= error %></div>
+    <% } %>
+    <section class="hero">
+      <h2>Welcome to Tech Gadgets!</h2>
+      <p>Your one-stop shop for the latest gadgets and accessories.<br>Discover, shop, and enjoy the best in tech.</p>
+      <a href="/products" class="btn">Shop Now</a>
+    </section>
+    <section style="margin-top:2rem;">
+      <% if (productsByCategory) { %>
+        <% Object.keys(productsByCategory).forEach(function(category) { %>
+          <h3 style="margin-top:2rem;"><%= category %></h3>
+          <div class="products-list">
+            <% productsByCategory[category].forEach(function(product) { %>
+              <div class="product-card">
+                <a href="/products/<%= product._id %>">
+                  <% if (product.image) { %>
+                    <img src="<%= product.image %>" alt="<%= product.name %>" class="product-img" />
+                  <% } %>
+                  <h4><%= product.name %></h4>
+                </a>
+                <p>$<%= product.price.toFixed(2) %></p>
+              </div>
+            <% }) %>
+          </div>
+        <% }) %>
+      <% } %>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; <%= new Date().getFullYear() %> Tech Gadgets. All rights reserved.</p>
+  </footer>
+</body>
+</html> 

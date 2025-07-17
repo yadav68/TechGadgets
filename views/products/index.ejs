@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Tech Gadgets & Accessories</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+      <a href="/cart">Cart</a>
+      <% if (!user) { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } else { %>
+        <a href="/logout">Logout</a>
+        <% if (user.isAdmin) { %>
+          <a href="/admin">Admin</a>
+        <% } %>
+      <% } %>
+    </nav>
+  </header>
+  <main>
+    <% if (success_msg && String(success_msg).trim()) { %>
+      <div class="flash-message success"><%= success_msg %></div>
+    <% } %>
+    <% if (error_msg && String(error_msg).trim()) { %>
+      <div class="flash-message"><%= error_msg %></div>
+    <% } %>
+    <% if (error && String(error).trim()) { %>
+      <div class="flash-message"><%= error %></div>
+    <% } %>
+    <h2>All Products</h2>
+    <% if (user && user.isAdmin) { %>
+      <a href="/products/new" class="btn" style="margin-bottom:1.5rem;">+ Add Product</a>
+    <% } %>
+    <div class="products-list">
+      <% if (products.length === 0) { %>
+        <p>No products available.</p>
+      <% } else { %>
+        <% products.forEach(product => { %>
+          <div class="product-card">
+            <a href="/products/<%= product._id %>">
+              <% if (product.image) { %>
+                <img src="<%= product.image %>" alt="<%= product.name %>" class="product-img" />
+              <% } %>
+              <h3><%= product.name %></h3>
+            </a>
+            <p>$<%= product.price.toFixed(2) %></p>
+            <% if (user && user.isAdmin) { %>
+              <a href="/products/<%= product._id %>/edit" class="btn" style="margin-right:0.5rem;">Edit</a>
+              <form action="/products/<%= product._id %>/delete" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            <% } %>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </main>
+  <footer>
+    <p>&copy; <%= new Date().getFullYear() %> Tech Gadgets. All rights reserved.</p>
+  </footer>
+</body>
+</html> 

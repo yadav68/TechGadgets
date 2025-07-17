@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Tech Gadgets & Accessories</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+      <a href="/cart">Cart</a>
+      <% if (!user) { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } else { %>
+        <a href="/logout">Logout</a>
+        <% if (user.isAdmin) { %>
+          <a href="/admin">Admin</a>
+        <% } %>
+      <% } %>
+    </nav>
+  </header>
+  <main>
+    <% if (success_msg && String(success_msg).trim()) { %>
+      <div class="flash-message success"><%= success_msg %></div>
+    <% } %>
+    <% if (error_msg && String(error_msg).trim()) { %>
+      <div class="flash-message"><%= error_msg %></div>
+    <% } %>
+    <% if (error && String(error).trim()) { %>
+      <div class="flash-message"><%= error %></div>
+    <% } %>
+    <div class="product-detail">
+      <h2><%= product.name %></h2>
+      <% if (product.image) { %>
+        <img src="<%= product.image %>" alt="<%= product.name %>" class="product-img-large" />
+      <% } %>
+      <p><%= product.description %></p>
+      <p><strong>Category:</strong> <%= product.category %></p>
+      <p><strong>Price:</strong> $<%= product.price.toFixed(2) %></p>
+      <form action="/cart/add/<%= product._id %>" method="POST">
+        <button type="submit" class="btn">Add to Cart</button>
+      </form>
+      <% if (user && user.isAdmin) { %>
+        <a href="/products/<%= product._id %>/edit" class="btn" style="margin-right:0.5rem;">Edit</a>
+        <form action="/products/<%= product._id %>/delete" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      <% } %>
+      <a href="/products" class="btn">Back to Products</a>
+    </div>
+  </main>
+  <footer>
+    <p>&copy; <%= new Date().getFullYear() %> Tech Gadgets. All rights reserved.</p>
+  </footer>
+</body>
+</html> 
