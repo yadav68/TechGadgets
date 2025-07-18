@@ -99,12 +99,31 @@ TechGadgets/
 3. **Environment Setup**
    
    Create a `.env` file in the `backend` directory:
-   ```env
-   MONGODB_URI=mongodb://localhost:27017/techgadgets
-   SESSION_SECRET=your-super-secret-session-key
-   PORT=5001
-   NODE_ENV=development
-   ```
+  # MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/techgadgets
+
+# Session Configuration
+SESSION_SECRET=your-super-secret-session-key-change-this-in-production
+
+# Server Configuration
+PORT=5002
+NODE_ENV=development
+
+# Frontend Configuration (React)
+REACT_APP_API_URL=http://localhost:5002/api
+
+# Optional: JWT Secret (if using JWT authentication)
+JWT_SECRET=your-jwt-secret-key-change-this-in-production
+
+# Optional: Email Configuration (if implementing email features)
+# EMAIL_HOST=smtp.gmail.com
+# EMAIL_PORT=587
+# EMAIL_USER=your-email@gmail.com
+# EMAIL_PASS=your-app-password
+
+# Optional: File Upload Configuration (if implementing file uploads)
+# UPLOAD_PATH=./uploads
+# MAX_FILE_SIZE=5242880
 
 4. **Start the application**
    ```bash
