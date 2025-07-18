@@ -1,6 +1,6 @@
 # TechGadgets - MERN Stack E-commerce Platform
 
-A modern, full-stack e-commerce application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) featuring a responsive design, real-time updates, and comprehensive admin functionality.
+A modern, full-stack e-commerce application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) featuring a responsive design, real-time updates, comprehensive admin functionality, and complete order management system.
 
 ## 🚀 Features
 
@@ -9,6 +9,7 @@ A modern, full-stack e-commerce application built with the MERN stack (MongoDB, 
 - **Product Browsing**: Browse products by category with horizontal scrolling
 - **Product Details**: Detailed product pages with related products
 - **Shopping Cart**: Real-time cart updates with instant price calculations
+- **Order Management**: Complete checkout process and order history
 - **Responsive Design**: Mobile-friendly interface with modern UI/UX
 - **Toast Notifications**: Real-time feedback for user actions
 
@@ -16,7 +17,8 @@ A modern, full-stack e-commerce application built with the MERN stack (MongoDB, 
 - **Admin Dashboard**: Comprehensive admin panel with statistics
 - **Product Management**: CRUD operations for products with category organization
 - **User Management**: View and manage user accounts
-- **Category-based Display**: Products organized by category for easy management
+- **Order Management**: View, update, and manage all orders
+- **Category Management**: Create and manage product categories
 - **Inventory Management**: Track product stock levels
 
 ### **Technical Features**
@@ -25,6 +27,7 @@ A modern, full-stack e-commerce application built with the MERN stack (MongoDB, 
 - **API-driven**: RESTful API architecture
 - **Modern UI**: Dark theme with gradient accents and smooth animations
 - **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile
+- **Order Processing**: Complete order lifecycle management
 
 ## 🛠️ Tech Stack
 
@@ -49,9 +52,25 @@ A modern, full-stack e-commerce application built with the MERN stack (MongoDB, 
 TechGadgets/
 ├── backend/                 # Express.js server
 │   ├── controllers/         # Route controllers
+│   │   ├── authController.js
+│   │   ├── categoryController.js
+│   │   ├── orderController.js
+│   │   └── productsController.js
 │   ├── middleware/          # Custom middleware
+│   │   └── auth.js
 │   ├── models/             # MongoDB schemas
+│   │   ├── Category.js
+│   │   ├── Order.js
+│   │   ├── Product.js
+│   │   └── User.js
 │   ├── routes/             # API routes
+│   │   ├── admin.js
+│   │   ├── auth.js
+│   │   ├── cart.js
+│   │   ├── categories.js
+│   │   ├── orders.js
+│   │   └── products.js
+│   ├── scripts/            # Database scripts
 │   ├── public/             # Static files
 │   ├── server.js           # Server entry point
 │   └── package.json        # Backend dependencies
@@ -59,8 +78,28 @@ TechGadgets/
 │   ├── public/             # Static assets
 │   ├── src/
 │   │   ├── components/     # Reusable components
+│   │   │   ├── Layout.js
+│   │   │   ├── Toast.js
+│   │   │   └── ProtectedRoute.js
 │   │   ├── pages/          # Page components
+│   │   │   ├── AdminCategories.js
+│   │   │   ├── AdminDashboard.js
+│   │   │   ├── AdminOrders.js
+│   │   │   ├── AdminProducts.js
+│   │   │   ├── AdminUsers.js
+│   │   │   ├── Cart.js
+│   │   │   ├── Checkout.js
+│   │   │   ├── Home.js
+│   │   │   ├── Login.js
+│   │   │   ├── OrderDetail.js
+│   │   │   ├── ProductCreate.js
+│   │   │   ├── ProductDetail.js
+│   │   │   ├── ProductEdit.js
+│   │   │   ├── Products.js
+│   │   │   ├── Register.js
+│   │   │   └── UserOrders.js
 │   │   ├── services/       # API services
+│   │   │   └── api.js
 │   │   └── App.js          # Main app component
 │   └── package.json        # Frontend dependencies
 ├── package.json            # Root dependencies
@@ -98,21 +137,42 @@ TechGadgets/
 
 3. **Environment Setup**
    
-   Create a `.env` file in the `backend` directory:
+   Create a `.env` file in the `backend` directory with the following variables:
    ```env
+   # Database Configuration
    MONGODB_URI=mongodb://localhost:27017/techgadgets
-   SESSION_SECRET=your-super-secret-session-key
-   PORT=5001
+   
+   # Server Configuration
+   PORT=5002
    NODE_ENV=development
+   
+   # Session Configuration
+   SESSION_SECRET=your-super-secret-session-key-change-this-in-production
+   
+   # Frontend URL (for CORS)
+   CLIENT_URL=http://localhost:3000
+   
+   # Optional: MongoDB Atlas (if using cloud database)
+   # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/techgadgets
    ```
 
-4. **Start the application**
+4. **Database Setup**
+   ```bash
+   # Start MongoDB (if running locally)
+   mongod
+   
+   # Run database migration scripts (optional)
+   cd backend/scripts
+   node migrateCategories.js
+   ```
+
+5. **Start the application**
    ```bash
    # From the root directory
    npm run dev
    ```
    
-   This will start both the backend server (port 5001) and React development server (port 3000).
+   This will start both the backend server (port 5002) and React development server (port 3000).
 
 ### **Manual Start (Alternative)**
    ```bash
@@ -131,15 +191,18 @@ TechGadgets/
 1. **Browse Products**: Visit the homepage to see products organized by category
 2. **View Details**: Click on any product to see detailed information
 3. **Add to Cart**: Use "Buy Now" or "Add to Cart" buttons
-4. **Manage Cart**: View cart, update quantities, and checkout
-5. **Account**: Register/login to save your information
+4. **Manage Cart**: View cart, update quantities, and proceed to checkout
+5. **Checkout**: Complete order with shipping and payment information
+6. **Order History**: View your past orders and their status
+7. **Account**: Register/login to save your information
 
 ### **For Admins**
 1. **Login**: Use admin credentials to access admin panel
 2. **Dashboard**: View site statistics and overview
-3. **Manage Products**: Add, edit, or delete products
-4. **User Management**: View and manage user accounts
-5. **Category Organization**: Products are automatically organized by category
+3. **Manage Products**: Add, edit, or delete products with category assignment
+4. **Manage Categories**: Create and organize product categories
+5. **User Management**: View and manage user accounts
+6. **Order Management**: View, update status, and manage all orders
 
 ## 🔧 API Endpoints
 
@@ -147,6 +210,7 @@ TechGadgets/
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 - `GET /api/auth/logout` - User logout
+- `GET /api/auth/me` - Get current user info
 
 ### **Products**
 - `GET /api/products` - Get all products
@@ -155,6 +219,12 @@ TechGadgets/
 - `PUT /api/products/:id` - Update product (admin only)
 - `DELETE /api/products/:id` - Delete product (admin only)
 
+### **Categories**
+- `GET /api/categories` - Get all categories
+- `POST /api/categories` - Create category (admin only)
+- `PUT /api/categories/:id` - Update category (admin only)
+- `DELETE /api/categories/:id` - Delete category (admin only)
+
 ### **Cart**
 - `GET /api/cart` - Get user cart
 - `POST /api/cart/add/:id` - Add item to cart
@@ -162,10 +232,18 @@ TechGadgets/
 - `DELETE /api/cart/remove/:id` - Remove item from cart
 - `DELETE /api/cart/clear` - Clear entire cart
 
+### **Orders**
+- `GET /api/orders` - Get user orders
+- `GET /api/orders/:id` - Get specific order
+- `POST /api/orders` - Create new order
+- `PUT /api/orders/:id` - Update order status (admin only)
+- `GET /api/admin/orders` - Get all orders (admin only)
+
 ### **Admin**
 - `GET /api/admin` - Admin dashboard data
 - `GET /api/admin/products` - Admin products view
 - `GET /api/admin/users` - Admin users view
+- `GET /api/admin/categories` - Admin categories view
 
 ## 🎨 Features in Detail
 
@@ -181,6 +259,13 @@ TechGadgets/
 - Clear category headers
 - Easy navigation and browsing
 
+### **Order Management**
+- Complete checkout process
+- Order status tracking
+- Order history for users
+- Admin order management
+- Order details with product information
+
 ### **Modern UI/UX**
 - Dark theme with vibrant accents
 - Smooth animations and transitions
@@ -191,8 +276,9 @@ TechGadgets/
 ### **Admin Dashboard**
 - Product management with category organization
 - User management capabilities
+- Order management and status updates
+- Category management
 - Real-time statistics
-- Intuitive interface for content management
 
 ## 🔒 Security Features
 
@@ -201,6 +287,8 @@ TechGadgets/
 - **Input Validation**: Server-side validation for all inputs
 - **CORS Configuration**: Proper cross-origin resource sharing setup
 - **Environment Variables**: Sensitive data stored in environment variables
+- **Route Protection**: Protected routes for admin and authenticated users
+- **Middleware Authentication**: Secure API endpoints
 
 ## 🚀 Deployment
 
@@ -208,13 +296,47 @@ TechGadgets/
 1. Create a Heroku account
 2. Install Heroku CLI
 3. Create a new Heroku app
-4. Set environment variables in Heroku dashboard
+4. Set environment variables in Heroku dashboard:
+   - `MONGODB_URI`
+   - `SESSION_SECRET`
+   - `NODE_ENV=production`
+   - `CLIENT_URL`
 5. Deploy using Git
 
 ### **Frontend Deployment (Vercel/Netlify)**
 1. Build the React app: `npm run build`
 2. Deploy to Vercel or Netlify
 3. Set environment variables for API URL
+
+### **MongoDB Atlas Setup**
+1. Create MongoDB Atlas account
+2. Create a new cluster
+3. Set up database access (username/password)
+4. Set up network access (IP whitelist)
+5. Get connection string and update `MONGODB_URI`
+
+## 🐛 Troubleshooting
+
+### **Common Issues**
+
+1. **Port Conflicts**
+   - Backend runs on port 5002
+   - Frontend runs on port 3000
+   - Check if ports are available
+
+2. **MongoDB Connection**
+   - Ensure MongoDB is running locally
+   - Check connection string in `.env`
+   - Verify network access for Atlas
+
+3. **Session Issues**
+   - Clear browser cookies
+   - Check `SESSION_SECRET` in `.env`
+   - Verify MongoDB connection
+
+4. **CORS Errors**
+   - Check `CLIENT_URL` in backend `.env`
+   - Ensure frontend URL matches
 
 ## 🤝 Contributing
 
