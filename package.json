@@ -1,0 +1,27 @@
+{
+  "name": "mern-techgadgets",
+  "version": "1.0.0",
+  "description": "TechGadgets MERN Stack E-commerce Application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm start --prefix TechGadgets/backend\" \"npm start --prefix TechGadgets/client\"",
+    "server": "cd TechGadgets/backend && npm run dev",
+    "client": "cd TechGadgets/client && npm start",
+    "install-all": "npm install && cd TechGadgets/backend && npm install && cd ../client && npm install",
+    "build": "cd TechGadgets/client && npm run build",
+    "start": "cd TechGadgets/backend && npm start"
+  },
+  "keywords": [
+    "mern",
+    "react",
+    "express",
+    "mongodb",
+    "nodejs",
+    "ecommerce"
+  ],
+  "author": "Tech Gadgets Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 

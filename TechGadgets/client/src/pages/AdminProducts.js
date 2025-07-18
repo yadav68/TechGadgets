@@ -1,0 +1,90 @@
+import React, { useState, useEffect } from "react";
+import Layout from "../components/Layout";
+import { Link } from "react-router-dom";
+import { adminAPI } from "../services/api";
+
+const AdminProducts = ({ user, successMsg, errorMsg, error, onDelete, onLogout, cartItemCount }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const data = await adminAPI.getProducts();
+      setProducts(data.products || []);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (productId) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      await onDelete(productId);
+      fetchProducts(); // Refresh the products list
+    }
+  };
+
+  // Group products by category for admin view
+  const groupByCategory = (products) => {
+    return products.reduce((acc, product) => {
+      const categoryName = product.category?.name || 'Uncategorized';
+      if (!acc[categoryName]) acc[categoryName] = [];
+      acc[categoryName].push(product);
+      return acc;
+    }, {});
+  };
+
+  if (loading) {
+    return (
+      <Layout title="Product Management" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
+        <div>Loading products...</div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout title="Product Management" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
+      <h2>Product Management</h2>
+      <div className="admin-actions" style={{ marginBottom: "2rem" }}>
+        <Link to="/admin" className="btn">Back to Dashboard</Link>
+        <Link to="/products/new" className="btn">Add New Product</Link>
+      </div>
+      {products.length === 0 ? (
+        <div className="cart-empty">
+          <p>No products found.</p>
+          <Link to="/products/new" className="btn">Add Your First Product</Link>
+        </div>
+      ) : (
+        Object.entries(groupByCategory(products)).map(([category, catProducts]) => (
+          <div className="category-section" key={category} style={{ marginBottom: '2.5rem' }}>
+            <h3 style={{ marginBottom: '1.2rem', color: '#8b5cf6' }}>{category}</h3>
+            <div className="products-list">
+              {catProducts.map(product => (
+                <div className="product-card" key={product._id}>
+                  <span className="price-badge">${product.price.toFixed(2)}</span>
+                  <Link to={`/products/${product._id}`}>
+                    {product.image && <img src={product.image} alt={product.name} className="product-img" />}
+                    <h3>{product.name}</h3>
+                  </Link>
+                  <p><strong>Stock:</strong> {product.stock}</p>
+                  <div className="product-actions">
+                    <Link to={`/products/${product._id}`} className="btn">View</Link>
+                    <Link to={`/products/${product._id}/edit`} className="btn">Edit</Link>
+                    <button className="btn btn-danger" onClick={() => handleDelete(product._id)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+    </Layout>
+  );
+};
+
+export default AdminProducts; 
