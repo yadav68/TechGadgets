@@ -17,12 +17,13 @@ const apiCall = async (endpoint, options = {}) => {
     const data = await response.json();
     
     if (!response.ok) {
-      throw new Error(data.error || 'API request failed');
+      // Throw the actual backend error object (can be { error } or { errors: [...] })
+      throw data;
     }
     
     return data;
   } catch (error) {
-    console.error('API Error:', error);
+    // If error is an object with errors array, throw as is
     throw error;
   }
 };

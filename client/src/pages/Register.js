@@ -1,24 +1,45 @@
 import React, { useState } from "react";
 import Layout from "../components/Layout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const Register = ({ user, successMsg, errorMsg, error, errors, onRegister, onLogout }) => {
+const Register = ({ user, successMsg, errorMsg, error: globalError, errors: globalErrors, onRegister, onLogout }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+  const [error, setError] = useState("");
+  const [errors, setErrors] = useState([]);
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (onRegister) onRegister({ username, email, password, password2 });
+    setError("");
+    setErrors([]);
+    setSuccess(false);
+    if (onRegister) {
+      const result = await onRegister({ username, email, password, password2 });
+      if (result?.success) {
+        setSuccess(true);
+        setTimeout(() => navigate('/login'), 2000); // Redirect after 2 seconds
+      } else if (result?.error) {
+        setError(result.error);
+      } else if (result?.errors && Array.isArray(result.errors)) {
+        setErrors(result.errors);
+      } else {
+        setError("Registration failed. Please check your input.");
+      }
+    }
   };
 
   return (
-    <Layout title="Register" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout}>
+    <Layout title="Register" user={user} successMsg={successMsg} errorMsg={errorMsg} error={globalError} onLogout={onLogout}>
       <h2>Register</h2>
-      {errors && errors.length > 0 && (
+      {success && <div className="flash-message success">Registration successful! Redirecting to login...</div>}
+      {(error || globalError) && <div className="error-list">{error || globalError}</div>}
+      {((errors && errors.length > 0) || (globalErrors && globalErrors.length > 0)) && (
         <ul className="error-list">
-          {errors.map((err, idx) => <li key={idx}>{err.msg || err}</li>)}
+          {(errors.length > 0 ? errors : globalErrors).map((err, idx) => <li key={idx}>{err.msg || err}</li>)}
         </ul>
       )}
       <form className="auth-form" onSubmit={handleSubmit}>

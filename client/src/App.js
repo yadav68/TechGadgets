@@ -110,6 +110,10 @@ function App() {
       setSuccessMsg(data.message);
       return { success: true };
     } catch (err) {
+      // If backend returns { errors: [...] }
+      if (err.errors) {
+        return { success: false, errors: err.errors };
+      }
       setError(err.message);
       return { success: false, error: err.message };
     }

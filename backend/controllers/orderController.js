@@ -103,8 +103,7 @@ export const createOrder = async (req, res) => {
     await order.save();
 
     // Clear user's cart after successful order
-    const Cart = mongoose.model('Cart');
-    await Cart.findOneAndDelete({ user: req.session.user._id });
+    req.session.cart = [];
 
     res.status(201).json({ 
       message: 'Order created successfully',
