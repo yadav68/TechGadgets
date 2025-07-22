@@ -90,7 +90,7 @@ const OrderDetail = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '2rem' }}>
         {/* Order Information */}
-        <div style={{ background: 'rgba(15, 15, 35, 0.8)', padding: '2rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+        <div className="order-detail-card">
           <h3>Order Information</h3>
           <div style={{ marginTop: '1rem' }}>
             <p><strong>Order Number:</strong> {order.orderNumber}</p>
@@ -98,20 +98,11 @@ const OrderDetail = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
             <p><strong>Time:</strong> {new Date(order.createdAt).toLocaleTimeString()}</p>
             <p><strong>Total Amount:</strong> ${order.totalAmount.toFixed(2)}</p>
             <p><strong>Payment Method:</strong> {order.paymentMethod.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-            
             <div style={{ marginTop: '1rem' }}>
-              <p style={{ 
-                color: getStatusColor(order.status), 
-                fontWeight: 'bold',
-                textTransform: 'capitalize'
-              }}>
+              <p className={`order-detail-status order-detail-status-${order.status}`}>
                 <strong>Status:</strong> {order.status}
               </p>
-              <p style={{ 
-                color: getPaymentStatusColor(order.paymentStatus), 
-                fontWeight: 'bold',
-                textTransform: 'capitalize'
-              }}>
+              <p className={`order-detail-status order-detail-status-${order.paymentStatus}`}>
                 <strong>Payment Status:</strong> {order.paymentStatus}
               </p>
             </div>
@@ -119,7 +110,7 @@ const OrderDetail = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
         </div>
 
         {/* Shipping Information */}
-        <div style={{ background: 'rgba(15, 15, 35, 0.8)', padding: '2rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+        <div className="order-detail-card">
           <h3>Shipping Address</h3>
           <div style={{ marginTop: '1rem' }}>
             <p>{order.shippingAddress.street}</p>
@@ -130,32 +121,18 @@ const OrderDetail = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
       </div>
 
       {/* Order Items */}
-      <div style={{ background: 'rgba(15, 15, 35, 0.8)', padding: '2rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.2)', marginTop: '2rem' }}>
+      <div className="order-detail-card">
         <h3>Order Items</h3>
         <div style={{ marginTop: '1rem' }}>
           {order.items.map((item, index) => (
-            <div key={index} style={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              padding: '1rem',
-              marginBottom: '1rem',
-              background: 'rgba(99, 102, 241, 0.1)',
-              borderRadius: '8px'
-            }}>
+            <div key={index} className="order-detail-item">
               {item.image && (
                 <img 
                   src={item.image} 
                   alt={item.name} 
-                  style={{ 
-                    width: '80px', 
-                    height: '80px', 
-                    objectFit: 'cover', 
-                    borderRadius: '8px',
-                    marginRight: '1rem'
-                  }} 
                 />
               )}
-              <div style={{ flex: 1 }}>
+              <div className="order-detail-item-info">
                 <h4>{item.name}</h4>
                 <p>Quantity: {item.quantity}</p>
                 <p>Price: ${item.price.toFixed(2)}</p>
@@ -168,7 +145,7 @@ const OrderDetail = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
 
       {/* Admin Actions (if admin) */}
       {user && user.isAdmin && (
-        <div style={{ background: 'rgba(15, 15, 35, 0.8)', padding: '2rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.2)', marginTop: '2rem' }}>
+        <div className="order-detail-card">
           <h3>Admin Actions</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
             <div>
@@ -187,9 +164,9 @@ const OrderDetail = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
                   width: '100%',
                   padding: '0.75rem',
                   borderRadius: '8px',
-                  background: '#1a1a2e',
-                  color: '#fff',
-                  border: '1px solid rgba(99, 102, 241, 0.3)'
+                  background: '#fff',
+                  color: 'var(--color-text)',
+                  border: '1px solid #e0e0e0'
                 }}
               >
                 <option value="pending">Pending</option>
@@ -199,7 +176,6 @@ const OrderDetail = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
                 <option value="cancelled">Cancelled</option>
               </select>
             </div>
-            
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem' }}>Update Payment Status:</label>
               <select 
@@ -216,9 +192,9 @@ const OrderDetail = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
                   width: '100%',
                   padding: '0.75rem',
                   borderRadius: '8px',
-                  background: '#1a1a2e',
-                  color: '#fff',
-                  border: '1px solid rgba(99, 102, 241, 0.3)'
+                  background: '#fff',
+                  color: 'var(--color-text)',
+                  border: '1px solid #e0e0e0'
                 }}
               >
                 <option value="pending">Pending</option>
