@@ -118,6 +118,10 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
     <Card
       sx={{
         height: "100%",
+        width: "100%",
+        maxWidth: "100%",
+        minWidth: 0,
+        flex: 1,
         display: "flex",
         flexDirection: "column",
         transition: "all 0.3s ease",
@@ -129,18 +133,21 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
         overflow: "hidden",
       }}
     >
-      <Box sx={{ position: "relative" }}>
+      <Box sx={{ position: "relative", width: "100%" }}>
         <CardMedia
           component="img"
           height="220"
           image={
             product.image ||
-            `https://source.unsplash.com/400x220/?${
-              product.name || "tech,gadget"
-            }`
+            `https://placeholder.com/400x220/0066CC/FFFFFF?text=${encodeURIComponent(
+              product.name || "Tech Gadget"
+            )}`
           }
           alt={product.name}
           sx={{
+            width: "100%",
+            height: "220px",
+            objectFit: "cover",
             transition: "transform 0.3s ease",
             "&:hover": { transform: "scale(1.05)" },
           }}
@@ -288,9 +295,22 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
         <Container maxWidth="xl" sx={{ py: 4 }}>
           <Grid container spacing={3}>
             {[...Array(8)].map((_, index) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                <Card sx={{ height: 400 }}>
-                  <Skeleton variant="rectangular" height={220} />
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                lg={4}
+                key={index}
+                sx={{
+                  display: "flex",
+                  minWidth: 0,
+                  width: "100%",
+                }}
+              >
+                <Card
+                  sx={{ height: 400, width: "100%", maxWidth: "100%", flex: 1 }}
+                >
+                  <Skeleton variant="rectangular" height={220} width="100%" />
                   <Box sx={{ p: 2 }}>
                     <Skeleton variant="text" sx={{ fontSize: "1.5rem" }} />
                     <Skeleton variant="text" />
@@ -470,7 +490,21 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
           <Fade in timeout={500}>
             <Grid container spacing={3}>
               {filteredProducts.map((product) => (
-                <Grid item key={product._id} xs={12} sm={6} md={4} lg={3}>
+                <Grid
+                  item
+                  xs={12} // Full width on mobile
+                  sm={6} // Half width on small screens
+                  lg={4} // One-third width on large screens
+                  key={product._id}
+                  sx={{
+                    display: "flex",
+                    // Responsive maxWidth and minWidth
+                    maxWidth: { xs: "100%", sm: "40%", lg: "30%" },
+                    minWidth: { xs: "100%", sm: "40%", lg: "30%" },
+					  width: "100%",
+					margin: "0 auto",
+                  }}
+                >
                   <ProductCard product={product} />
                 </Grid>
               ))}
