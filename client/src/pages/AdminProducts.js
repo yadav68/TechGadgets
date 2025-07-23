@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
 import { Link } from "react-router-dom";
 import { adminAPI } from "../services/api";
+import { Container, Typography, Button, Grid, Card, CardMedia, CardContent, CardActions, CircularProgress, Box } from '@mui/material';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const AdminProducts = ({ user, successMsg, errorMsg, error, onDelete, onLogout, cartItemCount }) => {
+const AdminProducts = ({ user, onDelete, onLogout, cartItemCount }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,11 +27,10 @@ const AdminProducts = ({ user, successMsg, errorMsg, error, onDelete, onLogout, 
   const handleDelete = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       await onDelete(productId);
-      fetchProducts(); // Refresh the products list
+      fetchProducts();
     }
   };
 
-  // Group products by category for admin view
   const groupByCategory = (products) => {
     return products.reduce((acc, product) => {
       const categoryName = product.category?.name || 'Uncategorized';
@@ -41,49 +42,82 @@ const AdminProducts = ({ user, successMsg, errorMsg, error, onDelete, onLogout, 
 
   if (loading) {
     return (
-      <Layout title="Product Management" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-        <div>Loading products...</div>
-      </Layout>
+      <>
+        <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <Layout title="Product Management" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-      <h2>Product Management</h2>
-      <div className="admin-actions" style={{ marginBottom: "2rem" }}>
-        <Link to="/admin" className="btn">Back to Dashboard</Link>
-        <Link to="/products/new" className="btn">Add New Product</Link>
-      </div>
-      {products.length === 0 ? (
-        <div className="cart-empty">
-          <p>No products found.</p>
-          <Link to="/products/new" className="btn">Add Your First Product</Link>
-        </div>
-      ) : (
-        Object.entries(groupByCategory(products)).map(([category, catProducts]) => (
-          <div className="category-section" key={category} style={{ marginBottom: '2.5rem' }}>
-            <h3 style={{ marginBottom: '1.2rem', color: '#8b5cf6' }}>{category}</h3>
-            <div className="products-list">
-              {catProducts.map(product => (
-                <div className="product-card" key={product._id}>
-                  <span className="price-badge">${product.price.toFixed(2)}</span>
-                  <Link to={`/products/${product._id}`}>
-                    {product.image && <img src={product.image} alt={product.name} className="product-img" />}
-                    <h3>{product.name}</h3>
-                  </Link>
-                  <p><strong>Stock:</strong> {product.stock}</p>
-                  <div className="product-actions">
-                    <Link to={`/products/${product._id}`} className="btn">View</Link>
-                    <Link to={`/products/${product._id}/edit`} className="btn">Edit</Link>
-                    <button className="btn btn-danger" onClick={() => handleDelete(product._id)}>Delete</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))
-      )}
-    </Layout>
+    <>
+      <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+      <Container sx={{ py: 8 }} maxWidth="lg">
+        <Typography variant="h4" component="h1" gutterBottom>
+          Product Management
+        </Typography>
+        <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
+          <Button component={Link} to="/admin" variant="outlined">
+            Back to Dashboard
+          </Button>
+          <Button component={Link} to="/products/new" variant="contained">
+            Add New Product
+          </Button>
+        </Box>
+
+        {products.length === 0 ? (
+          <Box sx={{ textAlign: 'center', mt: 4 }}>
+            <Typography variant="h6">No products found.</Typography>
+            <Button component={Link} to="/products/new" variant="contained" sx={{ mt: 2 }}>
+              Add Your First Product
+            </Button>
+          </Box>
+        ) : (
+          Object.entries(groupByCategory(products)).map(([category, catProducts]) => (
+            <Box key={category} sx={{ mb: 5 }}>
+              <Typography variant="h5" component="h2" gutterBottom>
+                {category}
+              </Typography>
+              <Grid container spacing={4}>
+                {catProducts.map((product) => (
+                  <Grid item key={product._id} xs={12} sm={6} md={4}>
+                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                      <CardMedia
+                        component={Link}
+                        to={`/products/${product._id}`}
+                        sx={{ pt: '56.25%' }}
+                        image={product.image || 'https://source.unsplash.com/random?tech,gadget'}
+                        title={product.name}
+                      />
+                      <CardContent sx={{ flexGrow: 1 }}>
+                        <Typography gutterBottom variant="h6" component="h3">
+                          {product.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Stock: {product.stock}
+                        </Typography>
+                        <Typography variant="subtitle1" color="text.primary">
+                          ${product.price.toFixed(2)}
+                        </Typography>
+                      </CardContent>
+                      <CardActions>
+                        <Button component={Link} to={`/products/${product._id}`} size="small">View</Button>
+                        <Button component={Link} to={`/products/${product._id}/edit`} size="small">Edit</Button>
+                        <Button size="small" color="error" onClick={() => handleDelete(product._id)}>Delete</Button>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          ))
+        )}
+      </Container>
+      <Footer />
+    </>
   );
 };
 

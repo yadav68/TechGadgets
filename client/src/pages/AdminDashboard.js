@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
 import { Link } from "react-router-dom";
 import { adminAPI } from "../services/api";
+import { Container, Typography, Grid, Card, CardContent, Button, Box, CircularProgress } from '@mui/material';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const AdminDashboard = ({ user, successMsg, errorMsg, error, onToggleAdmin, onLogout }) => {
+const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
   const [dashboardData, setDashboardData] = useState({
     products: [],
     users: [],
     totalProducts: 0,
-    totalUsers: 0
+    totalUsers: 0,
+    totalCategories: 0,
+    totalOrders: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -29,90 +33,153 @@ const AdminDashboard = ({ user, successMsg, errorMsg, error, onToggleAdmin, onLo
 
   if (loading) {
     return (
-      <Layout title="Admin Dashboard" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout}>
-        <div>Loading dashboard...</div>
-      </Layout>
+      <>
+        <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <Layout title="Admin Dashboard" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout}>
-      <h2>Admin Dashboard</h2>
-      <div className="admin-stats">
-        <div className="stat-card">
-          <h3>Total Products</h3>
-          <p className="stat-number">{dashboardData.totalProducts}</p>
-          <Link to="/admin/products" className="btn">Manage Products</Link>
-        </div>
-        <div className="stat-card">
-          <h3>Total Users</h3>
-          <p className="stat-number">{dashboardData.totalUsers}</p>
-          <Link to="/admin/users" className="btn">Manage Users</Link>
-        </div>
-        <div className="stat-card">
-          <h3>Total Categories</h3>
-          <p className="stat-number">{dashboardData.totalCategories || 0}</p>
-          <Link to="/admin/categories" className="btn">Manage Categories</Link>
-        </div>
-        <div className="stat-card">
-          <h3>Total Orders</h3>
-          <p className="stat-number">{dashboardData.totalOrders || 0}</p>
-          <Link to="/admin/orders" className="btn">Manage Orders</Link>
-        </div>
-      </div>
-      <div className="admin-sections">
-        <div className="admin-section">
-          <h3>Recent Products</h3>
-          {dashboardData.products.length === 0 ? (
-            <p>No products found.</p>
-          ) : (
-            <div className="admin-list">
-              {dashboardData.products.map(product => (
-                <div className="admin-item" key={product._id}>
-                  <div className="admin-item-info">
-                    <h4>{product.name}</h4>
-                    <p>${product.price.toFixed(2)} - {product.category?.name || 'No Category'}</p>
-                  </div>
-                  <div className="admin-item-actions">
-                    <Link to={`/products/${product._id}`} className="btn">View</Link>
-                    <Link to={`/products/${product._id}/edit`} className="btn">Edit</Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="admin-section">
-          <h3>Recent Users</h3>
-          {dashboardData.users.length === 0 ? (
-            <p>No users found.</p>
-          ) : (
-            <div className="admin-list">
-              {dashboardData.users.map(u => (
-                <div className="admin-item" key={u._id}>
-                  <div className="admin-item-info">
-                    <h4>{u.username}</h4>
-                    <p>{u.email} - {u.isAdmin ? 'Admin' : 'User'}</p>
-                  </div>
-                  <div className="admin-item-actions">
-                    <button className="btn" onClick={() => onToggleAdmin(u._id)}>
-                      {u.isAdmin ? 'Remove Admin' : 'Make Admin'}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="admin-actions">
-        <Link to="/products/new" className="btn">Add New Product</Link>
-        <Link to="/admin/products" className="btn">View All Products</Link>
-        <Link to="/admin/users" className="btn">View All Users</Link>
-        <Link to="/admin/categories" className="btn">Manage Categories</Link>
-        <Link to="/admin/orders" className="btn">Manage Orders</Link>
-      </div>
-    </Layout>
+    <>
+      <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+      <Container sx={{ py: 8 }} maxWidth="lg">
+        <Typography variant="h4" component="h1" gutterBottom>
+          Admin Dashboard
+        </Typography>
+
+        <Grid container spacing={3} sx={{ mb: 5 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" component="h3">
+                  Total Products
+                </Typography>
+                <Typography variant="h4" color="primary">
+                  {dashboardData.totalProducts}
+                </Typography>
+                <Button component={Link} to="/admin/products" variant="text" sx={{ mt: 2 }}>
+                  Manage Products
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" component="h3">
+                  Total Users
+                </Typography>
+                <Typography variant="h4" color="primary">
+                  {dashboardData.totalUsers}
+                </Typography>
+                <Button component={Link} to="/admin/users" variant="text" sx={{ mt: 2 }}>
+                  Manage Users
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" component="h3">
+                  Total Categories
+                </Typography>
+                <Typography variant="h4" color="primary">
+                  {dashboardData.totalCategories || 0}
+                </Typography>
+                <Button component={Link} to="/admin/categories" variant="text" sx={{ mt: 2 }}>
+                  Manage Categories
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" component="h3">
+                  Total Orders
+                </Typography>
+                <Typography variant="h4" color="primary">
+                  {dashboardData.totalOrders || 0}
+                </Typography>
+                <Button component={Link} to="/admin/orders" variant="text" sx={{ mt: 2 }}>
+                  Manage Orders
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  Recent Products
+                </Typography>
+                {dashboardData.products.length === 0 ? (
+                  <Typography>No products found.</Typography>
+                ) : (
+                  <Box>
+                    {dashboardData.products.map(product => (
+                      <Box key={product._id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
+                        <Typography variant="subtitle1">{product.name}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          ${product.price.toFixed(2)} - {product.category?.name || 'No Category'}
+                        </Typography>
+                        <Box sx={{ mt: 1 }}>
+                          <Button component={Link} to={`/products/${product._id}`} size="small" sx={{ mr: 1 }}>View</Button>
+                          <Button component={Link} to={`/products/${product._id}/edit`} size="small">Edit</Button>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  Recent Users
+                </Typography>
+                {dashboardData.users.length === 0 ? (
+                  <Typography>No users found.</Typography>
+                ) : (
+                  <Box>
+                    {dashboardData.users.map(u => (
+                      <Box key={u._id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
+                        <Typography variant="subtitle1">{u.username}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {u.email} - {u.isAdmin ? 'Admin' : 'User'}
+                        </Typography>
+                        <Button size="small" onClick={() => onToggleAdmin(u._id)} sx={{ mt: 1 }}>
+                          {u.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                        </Button>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ mt: 5, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <Button component={Link} to="/products/new" variant="contained">Add New Product</Button>
+          <Button component={Link} to="/admin/products" variant="outlined">View All Products</Button>
+          <Button component={Link} to="/admin/users" variant="outlined">View All Users</Button>
+          <Button component={Link} to="/admin/categories" variant="outlined">Manage Categories</Button>
+          <Button component={Link} to="/admin/orders" variant="outlined">Manage Orders</Button>
+        </Box>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

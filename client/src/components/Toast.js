@@ -1,22 +1,18 @@
-import React, { useEffect } from 'react';
-import './Toast.css';
+import React from 'react';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
-const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, duration);
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
-
+const Toast = ({ message, type = 'success', onClose }) => {
   return (
-    <div className={`toast toast-${type}`}>
-      <div className="toast-content">
-        <span className="toast-message">{message}</span>
-        <button className="toast-close" onClick={onClose}>×</button>
-      </div>
-    </div>
+    <Snackbar open={!!message} autoHideDuration={6000} onClose={onClose}>
+      <Alert onClose={onClose} severity={type} sx={{ width: '100%' }}>
+        {message}
+      </Alert>
+    </Snackbar>
   );
 };
 

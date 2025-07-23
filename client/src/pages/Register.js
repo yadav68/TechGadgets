@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import Layout from "../components/Layout";
 import { Link, useNavigate } from "react-router-dom";
+import { Container, Typography, TextField, Button, Grid, Box, Alert } from '@mui/material';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const Register = ({ user, successMsg, errorMsg, error: globalError, errors: globalErrors, onRegister, onLogout }) => {
+const Register = ({ user, onRegister, onLogout, cartItemCount }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,11 +19,15 @@ const Register = ({ user, successMsg, errorMsg, error: globalError, errors: glob
     setError("");
     setErrors([]);
     setSuccess(false);
+    if (password !== password2) {
+      setError("Passwords do not match");
+      return;
+    }
     if (onRegister) {
       const result = await onRegister({ username, email, password, password2 });
       if (result?.success) {
         setSuccess(true);
-        setTimeout(() => navigate('/login'), 2000); // Redirect after 2 seconds
+        setTimeout(() => navigate('/login'), 2000);
       } else if (result?.error) {
         setError(result.error);
       } else if (result?.errors && Array.isArray(result.errors)) {
@@ -33,24 +39,103 @@ const Register = ({ user, successMsg, errorMsg, error: globalError, errors: glob
   };
 
   return (
-    <Layout title="Register" user={user} successMsg={successMsg} errorMsg={errorMsg} error={globalError} onLogout={onLogout}>
-      <h2>Register</h2>
-      {success && <div className="flash-message success">Registration successful! Redirecting to login...</div>}
-      {(error || globalError) && <div className="error-list">{error || globalError}</div>}
-      {((errors && errors.length > 0) || (globalErrors && globalErrors.length > 0)) && (
-        <ul className="error-list">
-          {(errors.length > 0 ? errors : globalErrors).map((err, idx) => <li key={idx}>{err.msg || err}</li>)}
-        </ul>
-      )}
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <input type="text" name="username" placeholder="Username" required value={username} onChange={e => setUsername(e.target.value)} />
-        <input type="email" name="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
-        <input type="password" name="password" placeholder="Password" required value={password} onChange={e => setPassword(e.target.value)} />
-        <input type="password" name="password2" placeholder="Confirm Password" required value={password2} onChange={e => setPassword2(e.target.value)} />
-        <button type="submit" className="btn">Register</button>
-      </form>
-      <p>Already have an account? <Link to="/login">Login</Link></p>
-    </Layout>
+    <>
+      <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+      <Container component="main" maxWidth="xs">
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            Sign Up
+          </Typography>
+          {success && <Alert severity="success" sx={{ width: '100%', mt: 2 }}>Registration successful! Redirecting to login...</Alert>}
+          {error && <Alert severity="error" sx={{ width: '100%', mt: 2 }}>{error}</Alert>}
+          {errors.length > 0 && (
+            <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+              <ul>
+                {errors.map((err, idx) => <li key={idx}>{err.msg || err}</li>)}
+              </ul>
+            </Alert>
+          )}
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  autoComplete="given-name"
+                  name="username"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  autoFocus
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password2"
+                  label="Confirm Password"
+                  type="password"
+                  id="password2"
+                  autoComplete="new-password"
+                  value={password2}
+                  onChange={e => setPassword2(e.target.value)}
+                />
+              </Grid>
+            </Grid>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign Up
+            </Button>
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link to="/login">
+                  Already have an account? Sign in
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

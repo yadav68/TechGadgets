@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import Layout from "../components/Layout";
 import { Link, useNavigate } from "react-router-dom";
+import { Container, Typography, TextField, Button, Grid, Box } from '@mui/material';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const Login = ({ user, successMsg, errorMsg, error: globalError, onLogin, onLogout }) => {
+const Login = ({ user, onLogin, onLogout, cartItemCount }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,11 +16,8 @@ const Login = ({ user, successMsg, errorMsg, error: globalError, onLogin, onLogo
     if (onLogin) {
       const result = await onLogin({ email, password }, () => navigate('/'));
       if (!result?.success) {
-        // Try to extract backend error message
         if (result?.error) {
           setError(result.error);
-        } else if (result?.errors && result.errors[0] && result.errors[0].msg) {
-          setError(result.errors[0].msg);
         } else {
           setError("Invalid email or password");
         }
@@ -27,16 +26,70 @@ const Login = ({ user, successMsg, errorMsg, error: globalError, onLogin, onLogo
   };
 
   return (
-    <Layout title="Login" user={user} successMsg={successMsg} errorMsg={errorMsg} error={globalError} onLogout={onLogout}>
-      <h2>Login</h2>
-      {(error || globalError) && <div className="error-list">{error || globalError}</div>}
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <input type="email" name="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
-        <input type="password" name="password" placeholder="Password" required value={password} onChange={e => setPassword(e.target.value)} />
-        <button type="submit" className="btn">Login</button>
-      </form>
-      <p>Don't have an account? <Link to="/register">Register</Link></p>
-    </Layout>
+    <>
+      <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+      <Container component="main" maxWidth="xs">
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            Login
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {error && (
+              <Typography color="error" variant="body2">
+                {error}
+              </Typography>
+            )}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
+            <Grid container>
+              <Grid item>
+                <Link to="/register">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

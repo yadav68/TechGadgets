@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
 import { Link, useNavigate } from "react-router-dom";
 import { categoryAPI } from "../services/api";
+import { Container, Typography, TextField, Button, Grid, Box, Select, MenuItem, InputLabel, FormControl, CircularProgress } from '@mui/material';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const ProductCreate = ({ user, successMsg, errorMsg, error, onCreate, onLogout }) => {
+const ProductCreate = ({ user, onCreate, onLogout, cartItemCount }) => {
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -42,40 +44,118 @@ const ProductCreate = ({ user, successMsg, errorMsg, error, onCreate, onLogout }
 
   if (loading) {
     return (
-      <Layout title="Add New Product" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout}>
-        <div>Loading categories...</div>
-      </Layout>
+      <>
+        <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <Layout title="Add New Product" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout}>
-      <h2>Add New Product</h2>
-      <form className="product-form" onSubmit={handleSubmit}>
-        <input type="text" name="name" placeholder="Product Name" required value={form.name} onChange={handleChange} />
-        <textarea name="description" placeholder="Description" required value={form.description} onChange={handleChange} />
-        <input type="number" name="price" placeholder="Price" step="0.01" required value={form.price} onChange={handleChange} />
-        <input type="text" name="image" placeholder="Image URL" value={form.image} onChange={handleChange} />
-        <select name="category" required value={form.category} onChange={handleChange} style={{ 
-          padding: '1rem', 
-          borderRadius: '8px', 
-          background: '#1a1a2e', 
-          color: '#fff',
-          border: '1px solid rgba(99, 102, 241, 0.3)',
-          fontSize: '1rem'
-        }}>
-          <option value="">Select Category</option>
-          {categories.map(category => (
-            <option key={category._id} value={category._id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        <input type="number" name="stock" placeholder="Stock" min="0" value={form.stock} onChange={handleChange} />
-        <button type="submit" className="btn">Add Product</button>
-      </form>
-      <Link to="/products" className="btn">Back to Products</Link>
-    </Layout>
+    <>
+      <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+      <Container component="main" maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+        <Typography component="h1" variant="h4" gutterBottom>
+          Add New Product
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 3 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                name="name"
+                required
+                fullWidth
+                id="name"
+                label="Product Name"
+                value={form.name}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="description"
+                required
+                fullWidth
+                id="description"
+                label="Description"
+                multiline
+                rows={4}
+                value={form.description}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="price"
+                required
+                fullWidth
+                id="price"
+                label="Price"
+                type="number"
+                value={form.price}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="stock"
+                required
+                fullWidth
+                id="stock"
+                label="Stock"
+                type="number"
+                value={form.stock}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="image"
+                fullWidth
+                id="image"
+                label="Image URL"
+                value={form.image}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth required>
+                <InputLabel id="category-label">Category</InputLabel>
+                <Select
+                  labelId="category-label"
+                  id="category"
+                  name="category"
+                  value={form.category}
+                  label="Category"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="">
+                    <em>Select Category</em>
+                  </MenuItem>
+                  {categories.map(category => (
+                    <MenuItem key={category._id} value={category._id}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button component={Link} to="/products" sx={{ mr: 2 }}>
+              Back to Products
+            </Button>
+            <Button type="submit" variant="contained">
+              Add Product
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

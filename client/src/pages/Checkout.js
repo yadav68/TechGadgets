@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
 import { Link, useNavigate } from "react-router-dom";
 import { cartAPI, orderAPI } from "../services/api";
+import { Container, Typography, Button, Grid, Card, CardContent, TextField, Select, MenuItem, FormControl, InputLabel, Box, CircularProgress, List, ListItem, ListItemText, Divider } from '@mui/material';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const Checkout = ({ user, successMsg, errorMsg, error, onLogout, cartItemCount, onClearCart }) => {
+const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
   const [cart, setCart] = useState({ cart: [], total: 0 });
-
-  const getTotal = () => {
-    return typeof cart.total === 'string' ? parseFloat(cart.total) : cart.total;
-  };
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const navigate = useNavigate();
@@ -54,7 +52,6 @@ const Checkout = ({ user, successMsg, errorMsg, error, onLogout, cartItemCount, 
       return;
     }
 
-    // Validate shipping address
     const requiredFields = ['street', 'city', 'state', 'zipCode', 'country'];
     for (const field of requiredFields) {
       if (!shippingAddress[field].trim()) {
@@ -66,7 +63,6 @@ const Checkout = ({ user, successMsg, errorMsg, error, onLogout, cartItemCount, 
     setProcessing(true);
 
     try {
-      // Convert cart items to order format
       const orderItems = cart.cart.map(item => ({
         productId: item._id,
         quantity: item.quantity
@@ -80,12 +76,10 @@ const Checkout = ({ user, successMsg, errorMsg, error, onLogout, cartItemCount, 
 
       await orderAPI.create(orderData);
       
-      // Clear cart after successful order
       if (onClearCart) {
         await onClearCart();
       }
       
-      // Redirect to orders page
       navigate('/orders');
     } catch (err) {
       console.error('Error creating order:', err);
@@ -97,208 +91,123 @@ const Checkout = ({ user, successMsg, errorMsg, error, onLogout, cartItemCount, 
 
   if (loading) {
     return (
-      <Layout title="Checkout" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-        <div>Loading checkout...</div>
-      </Layout>
+      <>
+        <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </>
     );
   }
 
   if (cart.cart.length === 0) {
     return (
-      <Layout title="Checkout" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-        <div className="cart-empty">
-          <h2>Your cart is empty</h2>
-          <p>Add some products to your cart before checkout.</p>
-          <Link to="/products" className="btn">Continue Shopping</Link>
-        </div>
-      </Layout>
+      <>
+        <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+        <Container sx={{ py: 8, textAlign: 'center' }} maxWidth="md">
+          <Typography variant="h4" component="h1" gutterBottom>
+            Your cart is empty
+          </Typography>
+          <Typography>Add some products to your cart before checkout.</Typography>
+          <Button component={Link} to="/products" variant="contained" sx={{ mt: 2 }}>
+            Continue Shopping
+          </Button>
+        </Container>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <Layout title="Checkout" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-      <h2>Checkout</h2>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '2rem' }}>
-        {/* Order Summary */}
-        <div style={{ background: 'rgba(15, 15, 35, 0.8)', padding: '2rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-          <h3>Order Summary</h3>
-          <div style={{ marginTop: '1rem' }}>
-            {cart.cart.map((item, index) => (
-              <div key={index} style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '1rem 0',
-                borderBottom: '1px solid rgba(99, 102, 241, 0.2)'
-              }}>
-                <div>
-                  <h4>{item.name}</h4>
-                  <p>Qty: {item.quantity}</p>
-                </div>
-                <div>
-                  <p>${(item.price * item.quantity).toFixed(2)}</p>
-                </div>
-              </div>
-            ))}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              padding: '1rem 0',
-              borderTop: '2px solid rgba(99, 102, 241, 0.3)',
-              fontWeight: 'bold',
-              fontSize: '1.2rem'
-            }}>
-              <span>Total:</span>
-                             <span>${getTotal().toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Checkout Form */}
-        <div style={{ background: 'rgba(15, 15, 35, 0.8)', padding: '2rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-          <h3>Shipping Information</h3>
-          <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem' }}>Street Address:</label>
-              <input
-                type="text"
-                name="street"
-                value={shippingAddress.street}
-                onChange={handleInputChange}
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  background: '#1a1a2e',
-                  color: '#fff',
-                  border: '1px solid rgba(99, 102, 241, 0.3)'
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem' }}>City:</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={shippingAddress.city}
-                  onChange={handleInputChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '8px',
-                    background: '#1a1a2e',
-                    color: '#fff',
-                    border: '1px solid rgba(99, 102, 241, 0.3)'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem' }}>State:</label>
-                <input
-                  type="text"
-                  name="state"
-                  value={shippingAddress.state}
-                  onChange={handleInputChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '8px',
-                    background: '#1a1a2e',
-                    color: '#fff',
-                    border: '1px solid rgba(99, 102, 241, 0.3)'
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem' }}>ZIP Code:</label>
-                <input
-                  type="text"
-                  name="zipCode"
-                  value={shippingAddress.zipCode}
-                  onChange={handleInputChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '8px',
-                    background: '#1a1a2e',
-                    color: '#fff',
-                    border: '1px solid rgba(99, 102, 241, 0.3)'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Country:</label>
-                <input
-                  type="text"
-                  name="country"
-                  value={shippingAddress.country}
-                  onChange={handleInputChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '8px',
-                    background: '#1a1a2e',
-                    color: '#fff',
-                    border: '1px solid rgba(99, 102, 241, 0.3)'
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '2rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem' }}>Payment Method:</label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  background: '#1a1a2e',
-                  color: '#fff',
-                  border: '1px solid rgba(99, 102, 241, 0.3)'
-                }}
-              >
-                <option value="credit_card">Credit Card</option>
-                <option value="debit_card">Debit Card</option>
-                <option value="paypal">PayPal</option>
-                <option value="cash_on_delivery">Cash on Delivery</option>
-              </select>
-            </div>
-
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <Link to="/cart" className="btn" style={{ flex: 1 }}>
-                Back to Cart
-              </Link>
-              <button
-                type="submit"
-                className="btn"
-                disabled={processing}
-                style={{ 
-                  flex: 1, 
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  opacity: processing ? 0.7 : 1
-                }}
-              >
-                                 {processing ? 'Processing...' : `Place Order - $${getTotal().toFixed(2)}`}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </Layout>
+    <>
+      <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+      <Container component="main" maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Typography component="h1" variant="h4" gutterBottom>
+          Checkout
+        </Typography>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={7}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Shipping Information
+                </Typography>
+                <Box component="form" onSubmit={handleSubmit} noValidate>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <TextField required fullWidth id="street" label="Street Address" name="street" value={shippingAddress.street} onChange={handleInputChange} />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField required fullWidth id="city" label="City" name="city" value={shippingAddress.city} onChange={handleInputChange} />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField required fullWidth id="state" label="State" name="state" value={shippingAddress.state} onChange={handleInputChange} />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField required fullWidth id="zipCode" label="ZIP Code" name="zipCode" value={shippingAddress.zipCode} onChange={handleInputChange} />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField required fullWidth id="country" label="Country" name="country" value={shippingAddress.country} onChange={handleInputChange} />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormControl fullWidth>
+                        <InputLabel id="payment-method-label">Payment Method</InputLabel>
+                        <Select
+                          labelId="payment-method-label"
+                          id="paymentMethod"
+                          value={paymentMethod}
+                          label="Payment Method"
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                        >
+                          <MenuItem value="credit_card">Credit Card</MenuItem>
+                          <MenuItem value="debit_card">Debit Card</MenuItem>
+                          <MenuItem value="paypal">PayPal</MenuItem>
+                          <MenuItem value="cash_on_delivery">Cash on Delivery</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                  <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
+                    <Button component={Link} to="/cart" variant="outlined">
+                      Back to Cart
+                    </Button>
+                    <Button type="submit" variant="contained" disabled={processing}>
+                      {processing ? <CircularProgress size={24} /> : `Place Order - ${cart.total.toFixed(2)}`}
+                    </Button>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Order Summary
+                </Typography>
+                <List disablePadding>
+                  {cart.cart.map((item) => (
+                    <ListItem key={item._id} sx={{ py: 1, px: 0 }}>
+                      <ListItemText primary={item.name} secondary={`Quantity: ${item.quantity}`} />
+                      <Typography variant="body2">${(item.price * item.quantity).toFixed(2)}</Typography>
+                    </ListItem>
+                  ))}
+                  <Divider />
+                  <ListItem sx={{ py: 1, px: 0 }}>
+                    <ListItemText primary="Total" />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                      ${cart.total.toFixed(2)}
+                    </Typography>
+                  </ListItem>
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

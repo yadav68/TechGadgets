@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
 import { Link } from "react-router-dom";
 import { orderAPI } from "../services/api";
+import { Container, Typography, Button, Box, CircularProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const AdminOrders = ({ user, successMsg, errorMsg, error, onLogout, cartItemCount }) => {
+const AdminOrders = ({ user, onLogout, cartItemCount }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,179 +27,140 @@ const AdminOrders = ({ user, successMsg, errorMsg, error, onLogout, cartItemCoun
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       await orderAPI.updateStatus(orderId, newStatus);
-      showToast('Order status updated successfully', 'success');
+      // showToast('Order status updated successfully', 'success');
       fetchOrders();
     } catch (err) {
-      showToast('Error updating order status', 'error');
+      // showToast('Error updating order status', 'error');
+      console.error('Error updating order status:', err);
     }
   };
 
   const handlePaymentStatusUpdate = async (orderId, newPaymentStatus) => {
     try {
       await orderAPI.updatePaymentStatus(orderId, newPaymentStatus);
-      showToast('Payment status updated successfully', 'success');
+      // showToast('Payment status updated successfully', 'success');
       fetchOrders();
     } catch (err) {
-      showToast('Error updating payment status', 'error');
+      // showToast('Error updating payment status', 'error');
+      console.error('Error updating payment status:', err);
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return '#f59e0b';
-      case 'processing': return '#3b82f6';
-      case 'shipped': return '#8b5cf6';
-      case 'delivered': return '#10b981';
-      case 'cancelled': return '#ef4444';
-      default: return '#6b7280';
+      case 'pending': return 'orange';
+      case 'processing': return 'blue';
+      case 'shipped': return 'purple';
+      case 'delivered': return 'green';
+      case 'cancelled': return 'red';
+      default: return 'gray';
     }
   };
 
   const getPaymentStatusColor = (status) => {
     switch (status) {
-      case 'pending': return '#f59e0b';
-      case 'completed': return '#10b981';
-      case 'failed': return '#ef4444';
-      default: return '#6b7280';
+      case 'pending': return 'orange';
+      case 'completed': return 'green';
+      case 'failed': return 'red';
+      default: return 'gray';
     }
-  };
-
-  const showToast = (message, type) => {
-    // This will be handled by the parent component
-    console.log(`${type}: ${message}`);
   };
 
   if (loading) {
     return (
-      <Layout title="Order Management" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-        <div>Loading orders...</div>
-      </Layout>
+      <>
+        <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <Layout title="Order Management" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-      <h2>Order Management</h2>
-      <div className="admin-actions" style={{ marginBottom: "2rem" }}>
-        <Link to="/admin" className="btn">Back to Dashboard</Link>
-      </div>
+    <>
+      <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+      <Container sx={{ py: 8 }} maxWidth="lg">
+        <Typography variant="h4" component="h1" gutterBottom>
+          Order Management
+        </Typography>
+        <Box sx={{ mb: 4 }}>
+          <Button component={Link} to="/admin" variant="outlined">
+            Back to Dashboard
+          </Button>
+        </Box>
 
-      {orders.length === 0 ? (
-        <div className="cart-empty">
-          <p>No orders found.</p>
-        </div>
-      ) : (
-        <div className="admin-list">
-          {orders.map(order => (
-            <div className="admin-item" key={order._id} style={{ 
-              background: 'rgba(15, 15, 35, 0.8)', 
-              padding: '1.5rem', 
-              borderRadius: '12px', 
-              marginBottom: '1rem',
-              border: '1px solid rgba(99, 102, 241, 0.2)'
-            }}>
-              <div className="admin-item-info">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <h4>Order #{order.orderNumber}</h4>
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{ 
-                      color: getStatusColor(order.status), 
-                      fontWeight: 'bold',
-                      textTransform: 'capitalize'
-                    }}>
-                      {order.status}
-                    </p>
-                    <p style={{ 
-                      color: getPaymentStatusColor(order.paymentStatus), 
-                      fontWeight: 'bold',
-                      textTransform: 'capitalize'
-                    }}>
-                      Payment: {order.paymentStatus}
-                    </p>
-                  </div>
-                </div>
-                
-                <p><strong>Customer:</strong> {order.user?.username} ({order.user?.email})</p>
-                <p><strong>Total Amount:</strong> ${order.totalAmount.toFixed(2)}</p>
-                <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
-                <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleDateString()}</p>
-                
-                <div style={{ marginTop: '1rem' }}>
-                  <h5>Items:</h5>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                    {order.items.map((item, index) => (
-                      <div key={index} style={{ 
-                        background: 'rgba(99, 102, 241, 0.1)', 
-                        padding: '0.5rem', 
-                        borderRadius: '8px',
-                        minWidth: '200px'
-                      }}>
-                        <p><strong>{item.name}</strong></p>
-                        <p>Qty: {item.quantity} × ${item.price.toFixed(2)}</p>
-                        <p>Subtotal: ${(item.quantity * item.price).toFixed(2)}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ marginTop: '1rem' }}>
-                  <h5>Shipping Address:</h5>
-                  <p>
-                    {order.shippingAddress.street}<br />
-                    {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}<br />
-                    {order.shippingAddress.country}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="admin-item-actions" style={{ marginTop: '1rem' }}>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ marginRight: '0.5rem' }}>Order Status:</label>
-                  <select 
-                    value={order.status} 
-                    onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                    style={{ 
-                      padding: '0.5rem', 
-                      borderRadius: '6px', 
-                      background: '#1a1a2e', 
-                      color: '#fff',
-                      border: '1px solid rgba(99, 102, 241, 0.3)'
-                    }}
+        {orders.length === 0 ? (
+          <Typography>No orders found.</Typography>
+        ) : (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="orders table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Order #</TableCell>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Total</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Payment Status</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow
+                    key={order._id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-                
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ marginRight: '0.5rem' }}>Payment Status:</label>
-                  <select 
-                    value={order.paymentStatus} 
-                    onChange={(e) => handlePaymentStatusUpdate(order._id, e.target.value)}
-                    style={{ 
-                      padding: '0.5rem', 
-                      borderRadius: '6px', 
-                      background: '#1a1a2e', 
-                      color: '#fff',
-                      border: '1px solid rgba(99, 102, 241, 0.3)'
-                    }}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="failed">Failed</option>
-                  </select>
-                </div>
-                
-                <Link to={`/orders/${order._id}`} className="btn">View Details</Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </Layout>
+                    <TableCell component="th" scope="row">
+                      {order.orderNumber}
+                    </TableCell>
+                    <TableCell>{order.user?.username} ({order.user?.email})</TableCell>
+                    <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                        <Select
+                          value={order.status}
+                          onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                          sx={{ color: getStatusColor(order.status), fontWeight: 'bold' }}
+                        >
+                          <MenuItem value="pending">Pending</MenuItem>
+                          <MenuItem value="processing">Processing</MenuItem>
+                          <MenuItem value="shipped">Shipped</MenuItem>
+                          <MenuItem value="delivered">Delivered</MenuItem>
+                          <MenuItem value="cancelled">Cancelled</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+                    <TableCell>
+                      <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                        <Select
+                          value={order.paymentStatus}
+                          onChange={(e) => handlePaymentStatusUpdate(order._id, e.target.value)}
+                          sx={{ color: getPaymentStatusColor(order.paymentStatus), fontWeight: 'bold' }}
+                        >
+                          <MenuItem value="pending">Pending</MenuItem>
+                          <MenuItem value="completed">Completed</MenuItem>
+                          <MenuItem value="failed">Failed</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+                    <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell align="right">
+                      <Button component={Link} to={`/orders/${order._id}`} size="small" variant="outlined">
+                        View Details
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Container>
+      <Footer />
+    </>
   );
 };
 

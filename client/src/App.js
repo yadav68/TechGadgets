@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -10,7 +13,7 @@ import ProductEdit from './pages/ProductEdit';
 import Cart from './pages/Cart';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
-import AdminUsers from './pages/AdminUsers';
+import { AdminUsers } from './pages/AdminUsers';
 import AdminCategories from './pages/AdminCategories';
 import AdminOrders from './pages/AdminOrders';
 import UserOrders from './pages/UserOrders';
@@ -19,7 +22,6 @@ import OrderDetail from './pages/OrderDetail';
 import Toast from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import { authAPI, productsAPI, cartAPI, adminAPI, getHomeData } from './services/api';
-import './App.css';
 
 // Wrapper components to handle route parameters
 const ProductDetailWrapper = ({ user, successMsg, errorMsg, error, onAddToCart, onDelete, onLogout, cartItemCount }) => {
@@ -27,9 +29,9 @@ const ProductDetailWrapper = ({ user, successMsg, errorMsg, error, onAddToCart, 
   return <ProductDetail id={id} user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onAddToCart={onAddToCart} onDelete={onDelete} onLogout={onLogout} cartItemCount={cartItemCount} />;
 };
 
-const ProductEditWrapper = ({ user, successMsg, errorMsg, error, onEdit, onDelete, onLogout, cartItemCount }) => {
+const ProductEditWrapper = ({ user, successMsg, errorMsg, onEdit, onDelete, onLogout, cartItemCount }) => {
   const { id } = useParams();
-  return <ProductEdit id={id} user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onEdit={onEdit} onDelete={onDelete} onLogout={onLogout} cartItemCount={cartItemCount} />;
+  return <ProductEdit id={id} user={user} successMsg={successMsg} errorMsg={errorMsg} onEdit={onEdit} onDelete={onDelete} onLogout={onLogout} cartItemCount={cartItemCount} />;
 };
 
 function App() {
@@ -239,128 +241,48 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={
-            <Home 
-              user={user}
-              successMsg={successMsg}
-              errorMsg={error}
-              error=""
-              onLogout={handleLogout}
-              cartItemCount={cartItemCount}
-              onAddToCart={handleAddToCart}
-            />
-          } />
-          
-          <Route path="/login" element={
-            <Login 
-              user={user}
-              successMsg={successMsg}
-              errorMsg={error}
-              error=""
-              onLogin={handleLogin}
-              onLogout={handleLogout}
-              cartItemCount={cartItemCount}
-            />
-          } />
-          
-          <Route path="/register" element={
-            <Register 
-              user={user}
-              successMsg={successMsg}
-              errorMsg={error}
-              error=""
-              onRegister={handleRegister}
-              onLogout={handleLogout}
-              cartItemCount={cartItemCount}
-            />
-          } />
-          
-          <Route path="/products" element={
-            <Products 
-              user={user}
-              successMsg={successMsg}
-              errorMsg={error}
-              error=""
-              onDelete={handleDeleteProduct}
-              onLogout={handleLogout}
-              cartItemCount={cartItemCount}
-              onAddToCart={handleAddToCart}
-            />
-          } />
-          
-          <Route path="/products/:id" element={<ProductDetailWrapper user={user} successMsg={successMsg} errorMsg={error} error="" onAddToCart={handleAddToCart} onDelete={handleDeleteProduct} onLogout={handleLogout} cartItemCount={cartItemCount} />} />
-          
-          <Route path="/products/new" element={
-            <ProtectedRoute user={user} isAdmin={true}>
-              <ProductCreate 
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={
+              <Home 
+                user={user}
+                successMsg={successMsg}
+                errorMsg={error}
+                onLogout={handleLogout}
+                cartItemCount={cartItemCount}
+                onAddToCart={handleAddToCart}
+              />
+            } />
+            
+            <Route path="/login" element={
+              <Login 
                 user={user}
                 successMsg={successMsg}
                 errorMsg={error}
                 error=""
-                onCreate={handleCreateProduct}
+                onLogin={handleLogin}
                 onLogout={handleLogout}
                 cartItemCount={cartItemCount}
               />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/products/:id/edit" element={
-            <ProtectedRoute user={user} isAdmin={true}>
-              <ProductEditWrapper user={user} successMsg={successMsg} errorMsg={error} error="" onEdit={handleEditProduct} onDelete={handleDeleteProduct} onLogout={handleLogout} cartItemCount={cartItemCount} />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/cart" element={
-            <ProtectedRoute user={user}>
-              <Cart 
+            } />
+            
+            <Route path="/register" element={
+              <Register 
                 user={user}
                 successMsg={successMsg}
                 errorMsg={error}
                 error=""
-                onUpdate={handleUpdateCart}
-                onRemove={handleRemoveFromCart}
-                onClear={handleClearCart}
-                onCheckout={handleCheckout}
+                onRegister={handleRegister}
                 onLogout={handleLogout}
                 cartItemCount={cartItemCount}
               />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/checkout" element={
-            <ProtectedRoute user={user}>
-              <Checkout 
-                user={user}
-                successMsg={successMsg}
-                errorMsg={error}
-                error=""
-                onLogout={handleLogout}
-                cartItemCount={cartItemCount}
-                onClearCart={handleClearCart}
-              />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin" element={
-            <ProtectedRoute user={user} isAdmin={true}>
-              <AdminDashboard 
-                user={user}
-                successMsg={successMsg}
-                errorMsg={error}
-                error=""
-                onToggleAdmin={handleToggleAdmin}
-                onLogout={handleLogout}
-                cartItemCount={cartItemCount}
-              />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/products" element={
-            <ProtectedRoute user={user} isAdmin={true}>
-              <AdminProducts 
+            } />
+            
+            <Route path="/products" element={
+              <Products 
                 user={user}
                 successMsg={successMsg}
                 errorMsg={error}
@@ -368,80 +290,161 @@ function App() {
                 onDelete={handleDeleteProduct}
                 onLogout={handleLogout}
                 cartItemCount={cartItemCount}
+                onAddToCart={handleAddToCart}
               />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/users" element={
-            <ProtectedRoute user={user} isAdmin={true}>
-              <AdminUsers 
-                user={user}
-                successMsg={successMsg}
-                errorMsg={error}
-                error=""
-                onToggleAdmin={handleToggleAdmin}
-                onDelete={handleDeleteUser}
-                onLogout={handleLogout}
-                cartItemCount={cartItemCount}
-              />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/categories" element={
-            <ProtectedRoute user={user} isAdmin={true}>
-              <AdminCategories 
-                user={user}
-                successMsg={successMsg}
-                errorMsg={error}
-                error=""
-                onLogout={handleLogout}
-                cartItemCount={cartItemCount}
-              />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/orders" element={
-            <ProtectedRoute user={user} isAdmin={true}>
-              <AdminOrders 
-                user={user}
-                successMsg={successMsg}
-                errorMsg={error}
-                error=""
-                onLogout={handleLogout}
-                cartItemCount={cartItemCount}
-              />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/orders" element={
-            <ProtectedRoute user={user}>
-              <UserOrders 
-                user={user}
-                successMsg={successMsg}
-                errorMsg={error}
-                error=""
-                onLogout={handleLogout}
-                cartItemCount={cartItemCount}
-              />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/orders/:id" element={
-            <ProtectedRoute user={user}>
-              <OrderDetail 
-                user={user}
-                successMsg={successMsg}
-                errorMsg={error}
-                error=""
-                onLogout={handleLogout}
-                cartItemCount={cartItemCount}
-              />
-            </ProtectedRoute>
-          } />
-        </Routes>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
-      </div>
-    </Router>
+            } />
+            
+            <Route path="/products/:id" element={<ProductDetailWrapper user={user} successMsg={successMsg} errorMsg={error} error="" onAddToCart={handleAddToCart} onDelete={handleDeleteProduct} onLogout={handleLogout} cartItemCount={cartItemCount} />} />
+            
+            <Route path="/products/new" element={
+              <ProtectedRoute user={user} isAdmin={true}>
+                <ProductCreate 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onCreate={handleCreateProduct}
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/products/:id/edit" element={
+              <ProtectedRoute user={user} isAdmin={true}>
+                <ProductEditWrapper user={user} successMsg={successMsg} errorMsg={error} onEdit={handleEditProduct} onDelete={handleDeleteProduct} onLogout={handleLogout} cartItemCount={cartItemCount} />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/cart" element={
+              <ProtectedRoute user={user}>
+                <Cart 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onUpdate={handleUpdateCart}
+                  onRemove={handleRemoveFromCart}
+                  onClear={handleClearCart}
+                  onCheckout={handleCheckout}
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/checkout" element={
+              <ProtectedRoute user={user}>
+                <Checkout 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                  onClearCart={handleClearCart}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin" element={
+              <ProtectedRoute user={user} isAdmin={true}>
+                <AdminDashboard 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onToggleAdmin={handleToggleAdmin}
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin/products" element={
+              <ProtectedRoute user={user} isAdmin={true}>
+                <AdminProducts 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onDelete={handleDeleteProduct}
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin/users" element={
+              <ProtectedRoute user={user} isAdmin={true}>
+                <AdminUsers 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onToggleAdmin={handleToggleAdmin}
+                  onDelete={handleDeleteUser}
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin/categories" element={
+              <ProtectedRoute user={user} isAdmin={true}>
+                <AdminCategories 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin/orders" element={
+              <ProtectedRoute user={user} isAdmin={true}>
+                <AdminOrders 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/orders" element={
+              <ProtectedRoute user={user}>
+                <UserOrders 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  error=""
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/orders/:id" element={
+              <ProtectedRoute user={user}>
+                <OrderDetail 
+                  user={user}
+                  successMsg={successMsg}
+                  errorMsg={error}
+                  onLogout={handleLogout}
+                  cartItemCount={cartItemCount}
+                />
+              </ProtectedRoute>
+            } />
+          </Routes>
+          {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 

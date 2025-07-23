@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
 import { Link } from "react-router-dom";
 import { categoryAPI } from "../services/api";
+import { Container, Typography, Button, Box, CircularProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Checkbox } from '@mui/material';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const AdminCategories = ({ user, successMsg, errorMsg, error, onLogout, cartItemCount }) => {
+const AdminCategories = ({ user, onLogout, cartItemCount }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [form, setForm] = useState({
     name: "",
@@ -34,17 +36,18 @@ const AdminCategories = ({ user, successMsg, errorMsg, error, onLogout, cartItem
     try {
       if (editingCategory) {
         await categoryAPI.update(editingCategory._id, form);
-        showToast('Category updated successfully', 'success');
+        // showToast('Category updated successfully', 'success');
       } else {
         await categoryAPI.create(form);
-        showToast('Category created successfully', 'success');
+        // showToast('Category created successfully', 'success');
       }
       setForm({ name: "", description: "", isActive: true });
       setEditingCategory(null);
-      setShowForm(false);
+      setOpenForm(false);
       fetchCategories();
     } catch (err) {
-      showToast('Error saving category', 'error');
+      // showToast('Error saving category', 'error');
+      console.error('Error saving category:', err);
     }
   };
 
@@ -55,120 +58,165 @@ const AdminCategories = ({ user, successMsg, errorMsg, error, onLogout, cartItem
       description: category.description || "",
       isActive: category.isActive
     });
-    setShowForm(true);
+    setOpenForm(true);
   };
 
   const handleDelete = async (categoryId) => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
         await categoryAPI.delete(categoryId);
-        showToast('Category deleted successfully', 'success');
+        // showToast('Category deleted successfully', 'success');
         fetchCategories();
       } catch (err) {
-        showToast('Error deleting category', 'error');
+        // showToast('Error deleting category', 'error');
+        console.error('Error deleting category:', err);
       }
     }
   };
 
-  const showToast = (message, type) => {
-    // This will be handled by the parent component
-    console.log(`${type}: ${message}`);
+  const handleCloseForm = () => {
+    setOpenForm(false);
+    setEditingCategory(null);
+    setForm({ name: "", description: "", isActive: true });
   };
 
   if (loading) {
     return (
-      <Layout title="Category Management" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-        <div>Loading categories...</div>
-      </Layout>
+      <>
+        <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <Layout title="Category Management" user={user} successMsg={successMsg} errorMsg={errorMsg} error={error} onLogout={onLogout} cartItemCount={cartItemCount}>
-      <h2>Category Management</h2>
-      <div className="admin-actions" style={{ marginBottom: "2rem" }}>
-        <Link to="/admin" className="btn">Back to Dashboard</Link>
-        <button className="btn" onClick={() => setShowForm(true)}>Add New Category</button>
-      </div>
+    <>
+      <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
+      <Container sx={{ py: 8 }} maxWidth="lg">
+        <Typography variant="h4" component="h1" gutterBottom>
+          Category Management
+        </Typography>
+        <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
+          <Button component={Link} to="/admin" variant="outlined">
+            Back to Dashboard
+          </Button>
+          <Button variant="contained" onClick={() => setOpenForm(true)}>
+            Add New Category
+          </Button>
+        </Box>
 
-      {showForm && (
-        <div className="category-form" style={{ 
-          background: 'rgba(15, 15, 35, 0.8)', 
-          padding: '2rem', 
-          borderRadius: '12px', 
-          marginBottom: '2rem',
-          border: '1px solid rgba(99, 102, 241, 0.2)'
-        }}>
-          <h3>{editingCategory ? 'Edit Category' : 'Add New Category'}</h3>
-          <form onSubmit={handleSubmit} className="product-form">
-            <input
-              type="text"
-              name="name"
-              placeholder="Category Name"
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
-            <textarea
-              name="description"
-              placeholder="Description (optional)"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-            />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={form.isActive}
-                  onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                />
-                Active
-              </label>
-            </div>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button type="submit" className="btn">
-                {editingCategory ? 'Update Category' : 'Create Category'}
-              </button>
-              <button 
-                type="button" 
-                className="btn btn-danger" 
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingCategory(null);
-                  setForm({ name: "", description: "", isActive: true });
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+        {categories.length === 0 ? (
+          <Box sx={{ textAlign: 'center', mt: 4 }}>
+            <Typography variant="h6">No categories found.</Typography>
+            <Button variant="contained" onClick={() => setOpenForm(true)} sx={{ mt: 2 }}>
+              Add Your First Category
+            </Button>
+          </Box>
+        ) : (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="category table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Created</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {categories.map((category) => (
+                  <TableRow
+                    key={category._id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {category.name}
+                    </TableCell>
+                    <TableCell>{category.description || 'N/A'}</TableCell>
+                    <TableCell>{category.isActive ? 'Active' : 'Inactive'}</TableCell>
+                    <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell align="right">
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleEdit(category)}
+                        sx={{ mr: 1 }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => handleDelete(category._id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
 
-      {categories.length === 0 ? (
-        <div className="cart-empty">
-          <p>No categories found.</p>
-          <button className="btn" onClick={() => setShowForm(true)}>Add Your First Category</button>
-        </div>
-      ) : (
-        <div className="admin-list">
-          {categories.map(category => (
-            <div className="admin-item" key={category._id}>
-              <div className="admin-item-info">
-                <h4>{category.name}</h4>
-                <p>{category.description || 'No description'}</p>
-                <p><strong>Status:</strong> {category.isActive ? 'Active' : 'Inactive'}</p>
-                <p><strong>Created:</strong> {new Date(category.createdAt).toLocaleDateString()}</p>
-              </div>
-              <div className="admin-item-actions">
-                <button className="btn" onClick={() => handleEdit(category)}>Edit</button>
-                <button className="btn btn-danger" onClick={() => handleDelete(category._id)}>Delete</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </Layout>
+        <Dialog open={openForm} onClose={handleCloseForm}>
+          <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+          <DialogContent>
+            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                name="name"
+                label="Category Name"
+                type="text"
+                fullWidth
+                variant="outlined"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+              <TextField
+                margin="dense"
+                id="description"
+                name="description"
+                label="Description"
+                type="text"
+                fullWidth
+                multiline
+                rows={4}
+                variant="outlined"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={form.isActive}
+                    onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
+                    name="isActive"
+                    color="primary"
+                  />
+                }
+                label="Active"
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseForm}>Cancel</Button>
+            <Button onClick={handleSubmit} variant="contained">
+              {editingCategory ? 'Update' : 'Create'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+      <Footer />
+    </>
   );
 };
 
