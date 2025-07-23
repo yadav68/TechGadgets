@@ -501,8 +501,8 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                     // Responsive maxWidth and minWidth
                     maxWidth: { xs: "100%", sm: "40%", lg: "30%" },
                     minWidth: { xs: "100%", sm: "40%", lg: "30%" },
-					  width: "100%",
-					margin: "0 auto",
+                    width: "100%",
+                    margin: "0 auto",
                   }}
                 >
                   <ProductCard product={product} />
