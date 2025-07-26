@@ -53,7 +53,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart }) => {
       ]);
 
       setCategories(categoriesData.categories || []);
-      setFeaturedProducts((productsData.products || []).slice(0, 6));
+      setFeaturedProducts((productsData.products || []).slice(0, 2)); // Show only 2 products
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
@@ -66,6 +66,158 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart }) => {
       onAddToCart(productId);
     }
   };
+
+  const ProductCard = ({ product }) => (
+    <Card
+      sx={{
+        height: "100%",
+        width: "100%",
+        maxWidth: "100%",
+        minWidth: 0,
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 8px 25px rgba(0,0,0,0.12)",
+        },
+        borderRadius: 3,
+        overflow: "hidden",
+      }}
+    >
+      <Box sx={{ position: "relative", width: "100%" }}>
+        <CardMedia
+          component="img"
+          height="220"
+          image={
+            product.image ||
+            `https://placeholder.com/400x220/0066CC/FFFFFF?text=${encodeURIComponent(
+              product.name || "Tech Gadget"
+            )}`
+          }
+          alt={product.name}
+          sx={{
+            width: "100%",
+            height: "220px",
+            objectFit: "cover",
+            transition: "transform 0.3s ease",
+            "&:hover": { transform: "scale(1.05)" },
+          }}
+        />
+        {product.category && (
+          <Chip
+            label={product.category.name}
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 12,
+              left: 12,
+              bgcolor: "primary.main",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          />
+        )}
+        {product.stock < 10 && (
+          <Chip
+            label="Low Stock"
+            size="small"
+            color="warning"
+            sx={{
+              position: "absolute",
+              top: 12,
+              right: 12,
+              fontWeight: "bold",
+            }}
+          />
+        )}
+      </Box>
+
+      <CardContent sx={{ flexGrow: 1, p: 3 }}>
+        <Typography
+          gutterBottom
+          variant="h6"
+          component="h3"
+          fontWeight="bold"
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            mb: 1,
+          }}
+        >
+          {product.name}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            mb: 2,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            lineHeight: 1.4,
+          }}
+        >
+          {product.description}
+        </Typography>
+
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Rating value={4.2} precision={0.1} size="small" readOnly />
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+            (4.2)
+          </Typography>
+        </Box>
+
+        <Typography
+          variant="h5"
+          color="primary.main"
+          fontWeight="bold"
+          sx={{ mb: 1 }}
+        >
+          ${product.price ? product.price.toFixed(2) : "0.00"}
+        </Typography>
+
+        {product.stock && (
+          <Typography variant="body2" color="text.secondary">
+            {product.stock} in stock
+          </Typography>
+        )}
+      </CardContent>
+
+      <Divider />
+
+      <CardActions sx={{ p: 2, justifyContent: "space-between" }}>
+        <Button
+          component={Link}
+          to={`/products/${product._id}`}
+          size="small"
+          startIcon={<VisibilityIcon />}
+          sx={{ color: "text.secondary" }}
+        >
+          View
+        </Button>
+
+        <IconButton
+          onClick={() => handleAddToCart(product._id)}
+          sx={{
+            bgcolor: "primary.main",
+            color: "white",
+            "&:hover": {
+              bgcolor: "primary.dark",
+              transform: "scale(1.1)",
+            },
+            transition: "all 0.2s ease",
+          }}
+        >
+          <ShoppingCartIcon />
+        </IconButton>
+      </CardActions>
+    </Card>
+  );
 
   const features = [
     {
@@ -334,133 +486,18 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart }) => {
             </Box>
             <Grid container spacing={4}>
               {featuredProducts.map((product) => (
-                <Grid item key={product._id} xs={12} sm={6} md={4}>
-                  <Card
-                    sx={{
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      "&:hover": {
-                        transform: "translateY(-8px)",
-                        boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
-                      },
-                      transition: "all 0.3s ease",
-                      borderRadius: 3,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Box sx={{ position: "relative", overflow: "hidden" }}>
-                      <CardMedia
-                        component="img"
-                        height="250"
-                        image={
-                          product.image ||
-                          `https://source.unsplash.com/400x250/?${
-                            product.name || "tech,gadget"
-                          }`
-                        }
-                        alt={product.name}
-                        sx={{
-                          transition: "transform 0.3s ease",
-                          "&:hover": { transform: "scale(1.1)" },
-                        }}
-                      />
-                      {product.category && (
-                        <Chip
-                          label={product.category.name}
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 12,
-                            left: 12,
-                            bgcolor: "primary.main",
-                            color: "white",
-                          }}
-                        />
-                      )}
-                    </Box>
-
-                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                      <Typography
-                        gutterBottom
-                        variant="h6"
-                        component="h3"
-                        fontWeight="bold"
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {product.name}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          mb: 2,
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {product.description}
-                      </Typography>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", mb: 2 }}
-                      >
-                        <Rating
-                          value={4.5}
-                          precision={0.5}
-                          size="small"
-                          readOnly
-                        />
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ ml: 1 }}
-                        >
-                          (4.5)
-                        </Typography>
-                      </Box>
-                      <Typography
-                        variant="h5"
-                        color="primary.main"
-                        fontWeight="bold"
-                      >
-                        ${product.price ? product.price.toFixed(2) : "0.00"}
-                      </Typography>
-                    </CardContent>
-
-                    <Divider />
-
-                    <CardActions sx={{ p: 2, justifyContent: "space-between" }}>
-                      <Button
-                        component={Link}
-                        to={`/products/${product._id}`}
-                        size="small"
-                        startIcon={<VisibilityIcon />}
-                        sx={{ color: "text.secondary" }}
-                      >
-                        View Details
-                      </Button>
-                      <IconButton
-                        onClick={() => handleAddToCart(product._id)}
-                        sx={{
-                          bgcolor: "primary.main",
-                          color: "white",
-                          "&:hover": {
-                            bgcolor: "primary.dark",
-                            transform: "scale(1.1)",
-                          },
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        <ShoppingCartIcon />
-                      </IconButton>
-                    </CardActions>
-                  </Card>
+                <Grid
+                  item
+                  key={product._id}
+                  xs={12}
+                  sm={6}
+                  sx={{
+                    display: "flex",
+                    minWidth: 0,
+                    width: "100%",
+                  }}
+                >
+                  <ProductCard product={product} />
                 </Grid>
               ))}
             </Grid>
@@ -469,15 +506,17 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart }) => {
               <Button
                 component={Link}
                 to="/products"
-                variant="outlined"
+                variant="contained"
                 size="large"
                 sx={{
                   borderRadius: 2,
                   px: 4,
                   py: 1.5,
+                  fontSize: "1.1rem",
+                  fontWeight: "bold",
                 }}
               >
-                View All Products
+                Show More Products
               </Button>
             </Box>
           </Container>
