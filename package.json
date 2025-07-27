@@ -1,11 +1,58 @@
 {
-  "name": "techgadgets-root",
+  "name": "techgadgets-monorepo",
+  "version": "1.0.0",
+  "description": "Full-stack e-commerce platform for technology gadgets",
   "private": true,
-  "scripts": {
-    "dev": "concurrently \"npm start --prefix backend\" \"npm start --prefix client\"",
-    "migrate": "node backend/scripts/migrateCategories.js"
+  "author": "Tech Gadgets Team <team@techgadgets.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/yadav68/TechGadgets#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yadav68/TechGadgets.git"
   },
+  "bugs": {
+    "url": "https://github.com/yadav68/TechGadgets/issues"
+  },
+  "keywords": [
+    "ecommerce",
+    "react",
+    "nodejs",
+    "express",
+    "mongodb",
+    "fullstack",
+    "javascript",
+    "monorepo"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm start --prefix client",
+    "start": "npm start --prefix backend",
+    "build": "npm run build --prefix client",
+    "test": "npm test --prefix client && npm test --prefix backend",
+    "test:frontend": "npm test --prefix client",
+    "test:backend": "npm test --prefix backend",
+    "lint": "npm run lint --prefix client && npm run lint --prefix backend",
+    "lint:fix": "npm run lint:fix --prefix client && npm run lint:fix --prefix backend",
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix client",
+    "clean": "npm run clean --prefix backend && npm run clean --prefix client && rm -rf node_modules backend/node_modules client/node_modules",
+    "migrate": "node backend/scripts/migrateCategories.js",
+    "seed": "node backend/scripts/createSampleOrders.js",
+    "security-audit": "npm audit && npm audit --prefix backend && npm audit --prefix client",
+    "security-fix": "npm audit fix && npm audit fix --prefix backend && npm audit fix --prefix client",
+    "update-deps": "npm update && npm update --prefix backend && npm update --prefix client",
+    "check-engines": "npx check-engine",
+    "postinstall": "echo 'Installation complete! Run npm run security-audit to check for vulnerabilities.'"
+  },
+  "workspaces": [
+    "backend",
+    "client"
+  ],
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
-} 
+}
