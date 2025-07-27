@@ -23,11 +23,29 @@ This is a full-stack e-commerce application for selling tech gadgets and accesso
 
 ## Project Structure
 
-The project is a monorepo with three main parts:
+The project is a monorepo with three main parts: the root directory, the `/backend` directory, and the `/client` directory.
 
-*   `/` (root): Contains scripts to run the client and backend concurrently.
-*   `/backend`: The Node.js/Express backend server and API.
-*   `/client`: The React frontend application.
+### Root Directory
+
+This is the main directory of the project.
+
+*   `.gitignore`: Specifies which files and folders should be ignored by Git.
+*   `package.json`: Defines the project's dependencies and scripts. It includes scripts to run the client and backend concurrently.
+*   `package-lock.json`: Records the exact versions of the dependencies.
+*   `populate-db.js`: A script to populate the database with initial data.
+*   `README.md`: This file, which provides an overview of the project.
+*   `test-pagination.js`: A script for testing the pagination functionality.
+*   `backend/`: The directory for the Node.js backend server.
+*   `client/`: The directory for the React frontend application.
+*   `node_modules/`: The directory where the project's dependencies are installed.
+
+### Backend Directory (`/backend`)
+
+This directory contains the Node.js and Express-based backend for the e-commerce platform. It provides the RESTful API for the frontend client.
+
+### Client Directory (`/client`)
+
+This directory contains the React-based frontend for the e-commerce platform.
 
 ## Setup and Installation
 
