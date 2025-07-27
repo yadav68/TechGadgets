@@ -57,7 +57,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart }) => {
     try {
       const [productsData, categoriesData] = await Promise.all([
         productsAPI.getAll(),
-        categoryAPI.getAll(),
+        categoryAPI.getWithProductCount(), // Use new API endpoint for categories with product count
       ]);
 
       setCategories(categoriesData.categories || []);
@@ -295,27 +295,29 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart }) => {
 
   /**
    * Category Card Component
-   * Displays clickable category cards
+   * Displays clickable category cards with product count
    */
   const CategoryCard = ({ category }) => (
     <Paper
       component={Link}
       to={`/products?category=${category._id}`}
       sx={{
-        p: { xs: 2, sm: 3 },
+        p: { xs: 3, sm: 4 },
         textAlign: "center",
         textDecoration: "none",
         color: "inherit",
         border: "1px solid",
         borderColor: "grey.200",
         borderRadius: 2,
-        height: "100%",
+        height: "200px", // Fixed height for consistency
+        width: "100%", // Full width within grid
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
+        alignItems: "center",
         transition: "all 0.3s ease",
         "&:hover": {
-          transform: "scale(1.05)",
+          transform: "translateY(-4px)",
           boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
           borderColor: "primary.main",
         },
@@ -324,13 +326,27 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart }) => {
       <Typography
         variant="h6"
         fontWeight="bold"
-        sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}
+        sx={{
+          fontSize: { xs: "1.1rem", sm: "1.25rem" },
+          mb: 1,
+          color: "primary.main",
+        }}
       >
         {category.name}
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ mb: 2, textAlign: "center" }}
+      >
         {category.description}
       </Typography>
+      <Chip
+        label={`${category.productCount} Products`}
+        size="small"
+        color="primary"
+        sx={{ fontWeight: "bold" }}
+      />
     </Paper>
   );
 
@@ -537,20 +553,37 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart }) => {
                 fontWeight="bold"
                 sx={{ mb: 2 }}
               >
-                Shop by Category
+                Top Categories
               </Typography>
               <Typography
                 variant={isMobile ? "body1" : "h6"}
                 color="text.secondary"
               >
-                Discover our wide range of tech categories
+                Browse our most popular product categories
               </Typography>
             </Box>
 
-            {/* Categories Grid */}
-            <Grid container spacing={{ xs: 2, sm: 3 }}>
-              {categories.slice(0, 6).map((category) => (
-                <Grid item xs={12} sm={6} lg={4} key={category._id}>
+            {/* Categories Grid - Up to 6 categories: 2 rows x 3 columns on desktop */}
+            <Grid
+              container
+              spacing={{ xs: 2, sm: 3, md: 4 }}
+              justifyContent="center"
+            >
+              {categories.map((category) => (
+                <Grid
+                  item
+                  key={category._id}
+                  xs={12} // Full width on mobile
+                  sm={6} // Half width on small screens
+                  lg={4} // One-third width on large screens
+                  sx={{
+                    display: "flex",
+                    maxWidth: { xs: "100%", sm: "40%", lg: "30%" },
+                    minWidth: { xs: "100%", sm: "40%", lg: "30%" },
+                    width: "100%",
+                    margin: "0 auto",
+                  }}
+                >
                   <CategoryCard category={category} />
                 </Grid>
               ))}
