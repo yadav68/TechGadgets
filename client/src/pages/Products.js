@@ -34,12 +34,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { categoryAPI, productsAPI } from "../services/api";
 
 const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +48,20 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [filteredProducts, setFilteredProducts] = useState([]);
+
+  // Handle URL query parameters - run after categories are loaded
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category");
+    if (categoryFromUrl && categories.length > 0) {
+      // Verify the category exists in the loaded categories
+      const categoryExists = categories.some(
+        (cat) => cat._id === categoryFromUrl
+      );
+      if (categoryExists) {
+        setSelectedCategory(categoryFromUrl);
+      }
+    }
+  }, [searchParams, categories]);
 
   useEffect(() => {
     fetchData();
