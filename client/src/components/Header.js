@@ -78,145 +78,348 @@ const Header = ({ user, onLogout, cartItemCount }) => {
   ];
 
   const drawer = (
-    <Box sx={{ width: 280, height: "100%", bgcolor: "background.paper" }}>
+    <Box sx={{ width: 300, height: "100%", bgcolor: "background.paper" }}>
+      {/* Header */}
       <Box
         sx={{
-          p: 2,
+          p: 3,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           borderBottom: "1px solid",
-          borderColor: "divider",
+          borderColor: "grey.200",
+          bgcolor: "primary.50",
         }}
       >
-        <Typography variant="h6" fontWeight="bold" color="primary">
+        <Typography variant="h6" fontWeight="bold" color="primary.main">
           TechGadgets
         </Typography>
-        <IconButton onClick={handleDrawerToggle}>
-          <CloseIcon />
+        <IconButton
+          onClick={handleDrawerToggle}
+          sx={{
+            bgcolor: "white",
+            width: 36,
+            height: 36,
+            "&:hover": { bgcolor: "grey.100" },
+          }}
+        >
+          <CloseIcon fontSize="small" />
         </IconButton>
       </Box>
 
-      <List sx={{ px: 2, py: 2 }}>
-        {navItems.map((item) => (
-          <ListItem
-            key={item.text}
-            component={Link}
-            to={item.path}
-            onClick={handleDrawerToggle}
-            sx={{
-              borderRadius: 2,
-              mb: 1,
-              textDecoration: "none",
-              bgcolor: isActivePage(item.path) ? "primary.main" : "transparent",
-              color: isActivePage(item.path) ? "white" : "text.primary",
-              "&:hover": {
-                bgcolor: isActivePage(item.path)
-                  ? "primary.dark"
-                  : "action.hover",
-              },
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                color: isActivePage(item.path) ? "white" : "text.secondary",
-                minWidth: 40,
-              }}
-            >
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
+      <Box sx={{ p: 3 }}>
+        {/* Main Navigation */}
+        <Typography
+          variant="overline"
+          fontWeight="bold"
+          color="text.secondary"
+          sx={{ mb: 2, display: "block" }}
+        >
+          Navigation
+        </Typography>
 
-        <Divider sx={{ my: 2 }} />
-
-        {user ? (
-          <>
+        <List disablePadding sx={{ mb: 3 }}>
+          {navItems.map((item) => (
             <ListItem
+              key={item.text}
               component={Link}
-              to="/orders"
+              to={item.path}
               onClick={handleDrawerToggle}
               sx={{
                 borderRadius: 2,
                 mb: 1,
                 textDecoration: "none",
-                bgcolor: isActivePage("/orders")
+                bgcolor: isActivePage(item.path)
                   ? "primary.main"
                   : "transparent",
-                color: isActivePage("/orders") ? "white" : "text.primary",
+                color: isActivePage(item.path) ? "white" : "text.primary",
+                border: "1px solid",
+                borderColor: isActivePage(item.path)
+                  ? "primary.main"
+                  : "grey.200",
+                transition: "all 0.2s ease-in-out",
                 "&:hover": {
-                  bgcolor: isActivePage("/orders")
+                  bgcolor: isActivePage(item.path)
                     ? "primary.dark"
-                    : "action.hover",
+                    : "primary.50",
+                  borderColor: "primary.main",
+                  transform: "translateX(4px)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 },
               }}
             >
               <ListItemIcon
                 sx={{
-                  color: isActivePage("/orders") ? "white" : "text.secondary",
+                  color: isActivePage(item.path) ? "white" : "primary.main",
                   minWidth: 40,
                 }}
               >
-                <OrdersIcon />
+                {item.icon}
               </ListItemIcon>
-              <ListItemText primary="My Orders" />
+              <ListItemText
+                primary={item.text}
+                sx={{
+                  "& .MuiListItemText-primary": {
+                    fontWeight: "medium",
+                    fontSize: "0.95rem",
+                  },
+                }}
+              />
             </ListItem>
-            <ListItem
+          ))}
+        </List>
+
+        {user ? (
+          <>
+            {/* User Section */}
+            <Typography
+              variant="overline"
+              fontWeight="bold"
+              color="text.secondary"
+              sx={{ mb: 2, display: "block" }}
+            >
+              Account
+            </Typography>
+
+            {/* User Info Card */}
+            <Box sx={{ mb: 3 }}>
+              <Box
+                sx={{
+                  bgcolor: "primary.50",
+                  borderRadius: 2,
+                  p: 3,
+                  border: "1px solid",
+                  borderColor: "primary.200",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "primary.main",
+                      width: 48,
+                      height: 48,
+                    }}
+                  >
+                    <PersonIcon />
+                  </Avatar>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      noWrap
+                      sx={{ color: "primary.main", mb: 0.5 }}
+                    >
+                      {user.username}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      noWrap
+                      sx={{ fontSize: "0.875rem" }}
+                    >
+                      {user.email}
+                    </Typography>
+                    <Chip
+                      label={user.isAdmin ? "Administrator" : "User"}
+                      size="small"
+                      sx={{
+                        mt: 1,
+                        bgcolor: user.isAdmin
+                          ? "secondary.main"
+                          : "success.main",
+                        color: "white",
+                        fontWeight: "bold",
+                        fontSize: "0.75rem",
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* User Menu Items */}
+            <List disablePadding sx={{ mb: 3 }}>
+              <ListItem
+                component={Link}
+                to="/orders"
+                onClick={handleDrawerToggle}
+                sx={{
+                  borderRadius: 2,
+                  mb: 1,
+                  textDecoration: "none",
+                  bgcolor: isActivePage("/orders")
+                    ? "primary.main"
+                    : "transparent",
+                  color: isActivePage("/orders") ? "white" : "text.primary",
+                  border: "1px solid",
+                  borderColor: isActivePage("/orders")
+                    ? "primary.main"
+                    : "grey.200",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: isActivePage("/orders")
+                      ? "primary.dark"
+                      : "primary.50",
+                    borderColor: "primary.main",
+                    transform: "translateX(4px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color: isActivePage("/orders") ? "white" : "primary.main",
+                    minWidth: 40,
+                  }}
+                >
+                  <OrdersIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary="My Orders"
+                  sx={{
+                    "& .MuiListItemText-primary": {
+                      fontWeight: "medium",
+                      fontSize: "0.95rem",
+                    },
+                  }}
+                />
+              </ListItem>
+
+              <ListItem
+                component={Link}
+                to="/profile"
+                onClick={handleDrawerToggle}
+                sx={{
+                  borderRadius: 2,
+                  mb: 1,
+                  textDecoration: "none",
+                  bgcolor: isActivePage("/profile")
+                    ? "primary.main"
+                    : "transparent",
+                  color: isActivePage("/profile") ? "white" : "text.primary",
+                  border: "1px solid",
+                  borderColor: isActivePage("/profile")
+                    ? "primary.main"
+                    : "grey.200",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: isActivePage("/profile")
+                      ? "primary.dark"
+                      : "primary.50",
+                    borderColor: "primary.main",
+                    transform: "translateX(4px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color: isActivePage("/profile") ? "white" : "primary.main",
+                    minWidth: 40,
+                  }}
+                >
+                  <PersonIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary="My Profile"
+                  sx={{
+                    "& .MuiListItemText-primary": {
+                      fontWeight: "medium",
+                      fontSize: "0.95rem",
+                    },
+                  }}
+                />
+              </ListItem>
+            </List>
+
+            {/* Logout Button */}
+            <Button
               onClick={() => {
                 handleDrawerToggle();
                 handleLogout();
               }}
+              fullWidth
+              variant="outlined"
+              color="error"
+              startIcon={<LogoutIcon />}
               sx={{
                 borderRadius: 2,
-                cursor: "pointer",
-                "&:hover": { bgcolor: "action.hover" },
+                py: 1.5,
+                textTransform: "none",
+                fontWeight: "medium",
+                border: "1px solid",
+                borderColor: "error.main",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  bgcolor: "error.50",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 4px 12px rgba(244, 67, 54, 0.2)",
+                },
               }}
             >
-              <ListItemIcon sx={{ color: "text.secondary", minWidth: 40 }}>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItem>
+              Sign Out
+            </Button>
           </>
         ) : (
           <>
-            <ListItem
-              component={Link}
-              to="/login"
-              onClick={handleDrawerToggle}
-              sx={{
-                borderRadius: 2,
-                mb: 1,
-                color: "inherit",
-                textDecoration: "none",
-                "&:hover": { bgcolor: "action.hover" },
-              }}
+            {/* Auth Section */}
+            <Typography
+              variant="overline"
+              fontWeight="bold"
+              color="text.secondary"
+              sx={{ mb: 2, display: "block" }}
             >
-              <ListItemIcon sx={{ color: "text.secondary", minWidth: 40 }}>
-                <LoginIcon />
-              </ListItemIcon>
-              <ListItemText primary="Login" />
-            </ListItem>
-            <ListItem
-              component={Link}
-              to="/register"
-              onClick={handleDrawerToggle}
-              sx={{
-                borderRadius: 2,
-                color: "inherit",
-                textDecoration: "none",
-                "&:hover": { bgcolor: "action.hover" },
-              }}
-            >
-              <ListItemIcon sx={{ color: "text.secondary", minWidth: 40 }}>
-                <SignUpIcon />
-              </ListItemIcon>
-              <ListItemText primary="Sign Up" />
-            </ListItem>
+              Get Started
+            </Typography>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Button
+                component={Link}
+                to="/login"
+                onClick={handleDrawerToggle}
+                variant="outlined"
+                fullWidth
+                startIcon={<LoginIcon />}
+                sx={{
+                  borderRadius: 2,
+                  py: 1.5,
+                  textTransform: "none",
+                  fontWeight: "medium",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  },
+                }}
+              >
+                Sign In
+              </Button>
+
+              <Button
+                component={Link}
+                to="/register"
+                onClick={handleDrawerToggle}
+                variant="contained"
+                fullWidth
+                startIcon={<SignUpIcon />}
+                sx={{
+                  borderRadius: 2,
+                  py: 1.5,
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+                  },
+                }}
+              >
+                Sign Up
+              </Button>
+            </Box>
           </>
         )}
-      </List>
+      </Box>
     </Box>
   );
 
@@ -226,16 +429,16 @@ const Header = ({ user, onLogout, cartItemCount }) => {
         position="sticky"
         elevation={0}
         sx={{
-          bgcolor: "white",
+          bgcolor: "rgba(255, 255, 255, 0.95)",
           color: "text.primary",
           borderBottom: "1px solid",
-          borderColor: "divider",
+          borderColor: "grey.200",
           backdropFilter: "blur(20px)",
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
         }}
       >
         <Container maxWidth="xl">
-          <Toolbar sx={{ px: { xs: 0, sm: 2 } }}>
+          <Toolbar sx={{ px: { xs: 0, sm: 2 }, py: 1.5 }}>
             {/* Mobile Menu Button */}
             {isMobile && (
               <IconButton
@@ -243,9 +446,17 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                 aria-label="open drawer"
                 edge="start"
                 onClick={handleDrawerToggle}
-                sx={{ mr: 2 }}
+                sx={{
+                  mr: 2,
+                  bgcolor: "primary.50",
+                  border: "1px solid",
+                  borderColor: "primary.200",
+                  "&:hover": {
+                    bgcolor: "primary.100",
+                  },
+                }}
               >
-                <MenuIcon />
+                <MenuIcon sx={{ color: "primary.main" }} />
               </IconButton>
             )}
 
@@ -256,7 +467,6 @@ const Header = ({ user, onLogout, cartItemCount }) => {
               to="/"
               sx={{
                 flexGrow: isMobile ? 1 : 0,
-                color: "primary.main",
                 textDecoration: "none",
                 fontWeight: "bold",
                 mr: 4,
@@ -264,6 +474,10 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                },
               }}
             >
               TechGadgets
@@ -279,19 +493,28 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                     to={item.path}
                     startIcon={item.icon}
                     sx={{
-                      color: isActivePage(item.path)
-                        ? "primary.main"
-                        : "text.primary",
-                      fontWeight: isActivePage(item.path) ? "bold" : "normal",
+                      color: isActivePage(item.path) ? "white" : "text.primary",
+                      fontWeight: "medium",
                       bgcolor: isActivePage(item.path)
-                        ? "primary.50"
+                        ? "primary.main"
                         : "transparent",
-                      "&:hover": {
-                        bgcolor: "action.hover",
-                        color: "primary.main",
-                      },
+                      border: "1px solid",
+                      borderColor: isActivePage(item.path)
+                        ? "primary.main"
+                        : "transparent",
                       borderRadius: 2,
-                      px: 2,
+                      px: 3,
+                      py: 1,
+                      textTransform: "none",
+                      transition: "all 0.2s ease-in-out",
+                      "&:hover": {
+                        bgcolor: isActivePage(item.path)
+                          ? "primary.dark"
+                          : "primary.50",
+                        borderColor: "primary.main",
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      },
                     }}
                   >
                     {item.text}
@@ -301,17 +524,24 @@ const Header = ({ user, onLogout, cartItemCount }) => {
             )}
 
             {/* Right side actions */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               {/* Cart Icon */}
               <IconButton
                 color="inherit"
                 component={Link}
                 to="/cart"
                 sx={{
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "grey.200",
                   color: "text.primary",
+                  transition: "all 0.2s ease-in-out",
                   "&:hover": {
-                    bgcolor: "action.hover",
+                    bgcolor: "primary.50",
+                    borderColor: "primary.main",
                     color: "primary.main",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                   },
                 }}
               >
@@ -321,8 +551,9 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                   sx={{
                     "& .MuiBadge-badge": {
                       fontSize: "0.75rem",
-                      minWidth: "18px",
-                      height: "18px",
+                      minWidth: "20px",
+                      height: "20px",
+                      fontWeight: "bold",
                     },
                   }}
                 >
@@ -335,21 +566,58 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                 <>
                   {user ? (
                     <>
-                      <Chip
-                        avatar={
-                          <Avatar sx={{ bgcolor: "primary.main" }}>
-                            <PersonIcon />
-                          </Avatar>
-                        }
-                        label={user.name || user.email}
+                      <Button
                         onClick={handleUserMenuOpen}
+                        variant="outlined"
                         sx={{
-                          cursor: "pointer",
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: "grey.200",
+                          bgcolor: "background.paper",
+                          color: "text.primary",
+                          textTransform: "none",
+                          px: 2,
+                          py: 1,
+                          minWidth: 200,
+                          justifyContent: "flex-start",
+                          transition: "all 0.2s ease-in-out",
                           "&:hover": {
-                            bgcolor: "action.hover",
+                            bgcolor: "primary.50",
+                            borderColor: "primary.main",
+                            transform: "translateY(-2px)",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                           },
                         }}
-                      />
+                        startIcon={
+                          <Avatar
+                            sx={{
+                              bgcolor: "primary.main",
+                              width: 32,
+                              height: 32,
+                            }}
+                          >
+                            <PersonIcon sx={{ fontSize: "1rem" }} />
+                          </Avatar>
+                        }
+                      >
+                        <Box sx={{ textAlign: "left", ml: 1 }}>
+                          <Typography
+                            variant="body2"
+                            fontWeight="bold"
+                            sx={{ lineHeight: 1.2 }}
+                          >
+                            {user.username}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ lineHeight: 1.2 }}
+                          >
+                            {user.isAdmin ? "Administrator" : "User Account"}
+                          </Typography>
+                        </Box>
+                      </Button>
+
                       <Menu
                         anchorEl={userMenuAnchor}
                         open={Boolean(userMenuAnchor)}
@@ -365,39 +633,190 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                         PaperProps={{
                           sx: {
                             mt: 1,
-                            minWidth: 200,
-                            borderRadius: 2,
-                            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+                            minWidth: 320,
+                            borderRadius: 3,
+                            boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+                            border: "1px solid",
+                            borderColor: "grey.200",
+                            p: 2,
                           },
                         }}
                       >
+                        {/* User Info Header */}
+                        <Box sx={{ px: 2, py: 2, mb: 2 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 2,
+                            }}
+                          >
+                            <Avatar
+                              sx={{
+                                bgcolor: "primary.main",
+                                width: 48,
+                                height: 48,
+                              }}
+                            >
+                              <PersonIcon />
+                            </Avatar>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Typography
+                                variant="h6"
+                                fontWeight="bold"
+                                noWrap
+                                sx={{ color: "primary.main", mb: 0.5 }}
+                              >
+                                {user.username}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                noWrap
+                                sx={{ fontSize: "0.875rem" }}
+                              >
+                                {user.email}
+                              </Typography>
+                              <Chip
+                                label={user.isAdmin ? "Administrator" : "User"}
+                                size="small"
+                                sx={{
+                                  mt: 1,
+                                  bgcolor: user.isAdmin
+                                    ? "secondary.main"
+                                    : "success.main",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  fontSize: "0.75rem",
+                                }}
+                              />
+                            </Box>
+                          </Box>
+                        </Box>
+
+                        <Divider sx={{ mb: 1 }} />
+
                         <MenuItem
                           component={Link}
                           to="/orders"
                           onClick={handleUserMenuClose}
-                          sx={{ gap: 2 }}
+                          sx={{
+                            borderRadius: 2,
+                            mb: 1,
+                            p: 2,
+                            transition: "all 0.2s ease-in-out",
+                            "&:hover": {
+                              bgcolor: "primary.50",
+                              transform: "translateX(4px)",
+                            },
+                          }}
                         >
-                          <OrdersIcon fontSize="small" />
-                          My Orders
+                          <OrdersIcon sx={{ color: "primary.main", mr: 2 }} />
+                          <Box>
+                            <Typography variant="body2" fontWeight="medium">
+                              My Orders
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              View order history
+                            </Typography>
+                          </Box>
                         </MenuItem>
+
+                        <MenuItem
+                          component={Link}
+                          to="/profile"
+                          onClick={handleUserMenuClose}
+                          sx={{
+                            borderRadius: 2,
+                            mb: 1,
+                            p: 2,
+                            transition: "all 0.2s ease-in-out",
+                            "&:hover": {
+                              bgcolor: "primary.50",
+                              transform: "translateX(4px)",
+                            },
+                          }}
+                        >
+                          <PersonIcon sx={{ color: "primary.main", mr: 2 }} />
+                          <Box>
+                            <Typography variant="body2" fontWeight="medium">
+                              My Profile
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              Manage account settings
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+
                         {user.isAdmin && (
                           <MenuItem
                             component={Link}
                             to="/admin"
                             onClick={handleUserMenuClose}
-                            sx={{ gap: 2 }}
+                            sx={{
+                              borderRadius: 2,
+                              mb: 1,
+                              p: 2,
+                              transition: "all 0.2s ease-in-out",
+                              "&:hover": {
+                                bgcolor: "secondary.50",
+                                transform: "translateX(4px)",
+                              },
+                            }}
                           >
-                            <AdminIcon fontSize="small" />
-                            Admin Dashboard
+                            <AdminIcon
+                              sx={{ color: "secondary.main", mr: 2 }}
+                            />
+                            <Box>
+                              <Typography variant="body2" fontWeight="medium">
+                                Admin Dashboard
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                Manage system settings
+                              </Typography>
+                            </Box>
                           </MenuItem>
                         )}
-                        <Divider />
+
+                        <Divider sx={{ my: 1 }} />
+
                         <MenuItem
                           onClick={handleLogout}
-                          sx={{ gap: 2, color: "error.main" }}
+                          sx={{
+                            borderRadius: 2,
+                            p: 2,
+                            transition: "all 0.2s ease-in-out",
+                            "&:hover": {
+                              bgcolor: "error.50",
+                              transform: "translateX(4px)",
+                            },
+                          }}
                         >
-                          <LogoutIcon fontSize="small" />
-                          Logout
+                          <LogoutIcon sx={{ color: "error.main", mr: 2 }} />
+                          <Box>
+                            <Typography
+                              variant="body2"
+                              fontWeight="medium"
+                              color="error.main"
+                            >
+                              Sign Out
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              End your session
+                            </Typography>
+                          </Box>
                         </MenuItem>
                       </Menu>
                     </>
@@ -407,17 +826,42 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                         component={Link}
                         to="/login"
                         variant="outlined"
-                        size="small"
-                        sx={{ borderRadius: 2 }}
+                        startIcon={<LoginIcon />}
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: "none",
+                          fontWeight: "medium",
+                          px: 3,
+                          py: 1,
+                          border: "1px solid",
+                          borderColor: "grey.300",
+                          transition: "all 0.2s ease-in-out",
+                          "&:hover": {
+                            borderColor: "primary.main",
+                            transform: "translateY(-2px)",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                          },
+                        }}
                       >
-                        Login
+                        Sign In
                       </Button>
                       <Button
                         component={Link}
                         to="/register"
                         variant="contained"
-                        size="small"
-                        sx={{ borderRadius: 2 }}
+                        startIcon={<SignUpIcon />}
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: "none",
+                          fontWeight: "bold",
+                          px: 3,
+                          py: 1,
+                          transition: "all 0.2s ease-in-out",
+                          "&:hover": {
+                            transform: "translateY(-2px)",
+                            boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+                          },
+                        }}
                       >
                         Sign Up
                       </Button>
@@ -442,8 +886,9 @@ const Header = ({ user, onLogout, cartItemCount }) => {
           display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            width: 280,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            width: 300,
+            boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+            border: "none",
           },
         }}
       >

@@ -46,6 +46,18 @@ export const authAPI = {
   logout: () => apiCall("/auth/logout", { method: "GET" }),
 
   getCurrentUser: () => apiCall("/auth/user", { method: "GET" }),
+
+  updateProfile: (profileData) =>
+    apiCall("/auth/profile", {
+      method: "PUT",
+      body: JSON.stringify(profileData),
+    }),
+
+  updatePassword: (passwordData) =>
+    apiCall("/auth/password", {
+      method: "PUT",
+      body: JSON.stringify(passwordData),
+    }),
 };
 
 // Products API calls

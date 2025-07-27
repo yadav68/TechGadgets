@@ -3,6 +3,7 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
   GridView as GridViewIcon,
+  NavigateNext,
   Search as SearchIcon,
   ShoppingCart as ShoppingCartIcon,
 } from "@mui/icons-material";
@@ -403,30 +404,60 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
       <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
 
       {/* Hero Section */}
-      <Box sx={{ bgcolor: "grey.50", py: 6 }}>
+      <Box
+        sx={{
+          bgcolor: "grey.50",
+          borderBottom: "1px solid",
+          borderColor: "grey.200",
+          py: 4,
+        }}
+      >
         <Container maxWidth="xl">
-          <Breadcrumbs sx={{ mb: 2 }}>
-            <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+          <Breadcrumbs
+            separator={<NavigateNext fontSize="small" />}
+            sx={{ mb: 2 }}
+          >
+            <Link
+              to="/"
+              style={{
+                textDecoration: "none",
+                color: "inherit",
+                fontSize: "0.875rem",
+              }}
+            >
               Home
             </Link>
-            <Typography color="text.primary">Products</Typography>
+            <Typography variant="body2" color="primary.main" fontWeight="bold">
+              Products
+            </Typography>
           </Breadcrumbs>
 
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+            <GridViewIcon sx={{ color: "primary.main", fontSize: 32 }} />
+            <Typography
+              variant="h4"
+              component="h1"
+              fontWeight="bold"
+              color="text.primary"
+            >
+              Tech Products
+            </Typography>
+          </Box>
+
           <Typography
-            variant="h3"
-            component="h1"
-            fontWeight="bold"
-            gutterBottom
-            sx={{ mb: 1 }}
+            variant="body1"
+            color="text.secondary"
+            sx={{ maxWidth: 600 }}
           >
-            Discover Amazing Products
+            Discover our latest collection of cutting-edge technology products
+            and gadgets.
           </Typography>
+        </Container>
+      </Box>
 
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
-            Find the perfect tech gadgets for your needs
-          </Typography>
-
-          {user && user.isAdmin && (
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {user && user.isAdmin && (
+          <Box sx={{ mb: 4 }}>
             <Button
               component={Link}
               to="/products/new"
@@ -437,12 +468,10 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
             >
               Add New Product
             </Button>
-          )}
-        </Container>
-      </Box>
+          </Box>
+        )}
 
-      {/* Filters Section */}
-      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* Filters Section */}
         <Paper sx={{ p: { xs: 2, md: 3 }, mb: 4, borderRadius: 3 }}>
           <Stack
             direction={{ xs: "column", md: "row" }}

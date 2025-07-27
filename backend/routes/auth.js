@@ -1,18 +1,31 @@
-import express from 'express';
-import { postRegister, postLogin, logout, getCurrentUser } from '../controllers/authController.js';
+import express from "express";
+import {
+  getCurrentUser,
+  logout,
+  postLogin,
+  postRegister,
+  updatePassword,
+  updateProfile,
+} from "../controllers/authController.js";
 
 const router = express.Router();
 
 // Register user
-router.post('/register', postRegister);
+router.post("/register", postRegister);
 
 // Login user
-router.post('/login', postLogin);
+router.post("/login", postLogin);
 
 // Logout user
-router.get('/logout', logout);
+router.get("/logout", logout);
 
 // Get current user
-router.get('/user', getCurrentUser);
+router.get("/user", getCurrentUser);
 
-export default router; 
+// Update user profile
+router.put("/profile", updateProfile);
+
+// Update user password
+router.put("/password", updatePassword);
+
+export default router;

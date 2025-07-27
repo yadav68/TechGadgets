@@ -23,6 +23,7 @@ import ProductCreate from "./pages/ProductCreate";
 import ProductDetail from "./pages/ProductDetail";
 import ProductEdit from "./pages/ProductEdit";
 import Products from "./pages/Products";
+import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import UserOrders from "./pages/UserOrders";
 import { adminAPI, authAPI, cartAPI, productsAPI } from "./services/api";
@@ -283,6 +284,10 @@ function App() {
     }
   };
 
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
   // Clear messages after 5 seconds
   useEffect(() => {
     if (successMsg || error) {
@@ -314,6 +319,7 @@ function App() {
                   onLogout={handleLogout}
                   cartItemCount={cartItemCount}
                   onAddToCart={handleAddToCart}
+                  onDelete={handleDeleteProduct}
                 />
               }
             />
@@ -446,6 +452,20 @@ function App() {
                     onLogout={handleLogout}
                     cartItemCount={cartItemCount}
                     onClearCart={handleClearCart}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute user={user}>
+                  <Profile
+                    user={user}
+                    onLogout={handleLogout}
+                    cartItemCount={cartItemCount}
+                    onUserUpdate={handleUserUpdate}
                   />
                 </ProtectedRoute>
               }
