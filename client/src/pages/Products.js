@@ -5,7 +5,6 @@ import {
   GridView as GridViewIcon,
   Search as SearchIcon,
   ShoppingCart as ShoppingCartIcon,
-  Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -35,13 +34,14 @@ import {
   Typography,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { categoryAPI, productsAPI } from "../services/api";
 
 const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -146,179 +146,219 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const ProductCard = ({ product }) => (
-    <Card
-      sx={{
-        height: "100%",
-        width: "100%",
-        maxWidth: "100%",
-        minWidth: 0,
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        transition: "all 0.3s ease",
-        "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.12)",
-        },
-        borderRadius: 3,
-        overflow: "hidden",
-      }}
-    >
-      <Box sx={{ position: "relative", width: "100%" }}>
-        <CardMedia
-          component="img"
-          height="220"
-          image={
-            product.image ||
-            `https://placeholder.com/400x220/0066CC/FFFFFF?text=${encodeURIComponent(
-              product.name || "Tech Gadget"
-            )}`
-          }
-          alt={product.name}
-          sx={{
-            width: "100%",
-            height: "220px",
-            objectFit: "cover",
-            transition: "transform 0.3s ease",
-            "&:hover": { transform: "scale(1.05)" },
-          }}
-        />
-        {product.category && (
-          <Chip
-            label={product.category.name}
-            size="small"
+  const ProductCard = ({ product }) => {
+    const handleCardClick = () => {
+      // Navigate to product detail page using React Router
+      navigate(`/products/${product._id}`);
+    };
+
+    const handleActionClick = (e) => {
+      // Prevent card click when clicking action buttons
+      e.stopPropagation();
+    };
+
+    return (
+      <Card
+        sx={{
+          height: "100%",
+          width: "100%",
+          maxWidth: "100%",
+          minWidth: 0,
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          transition: "all 0.3s ease",
+          cursor: "pointer",
+          "&:hover": {
+            transform: "translateY(-4px)",
+            boxShadow: "0 8px 25px rgba(0,0,0,0.12)",
+          },
+          borderRadius: 3,
+          overflow: "hidden",
+        }}
+        onClick={handleCardClick}
+      >
+        <Box sx={{ position: "relative", width: "100%" }}>
+          <CardMedia
+            component="img"
+            height="220"
+            image={
+              product.image ||
+              `https://placeholder.com/400x220/0066CC/FFFFFF?text=${encodeURIComponent(
+                product.name || "Tech Gadget"
+              )}`
+            }
+            alt={product.name}
             sx={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              bgcolor: "primary.main",
-              color: "white",
-              fontWeight: "bold",
+              width: "100%",
+              height: "220px",
+              objectFit: "cover",
+              transition: "transform 0.3s ease",
+              "&:hover": { transform: "scale(1.05)" },
             }}
           />
-        )}
-        {product.stock < 10 && (
-          <Chip
-            label="Low Stock"
-            size="small"
-            color="warning"
-            sx={{
-              position: "absolute",
-              top: 12,
-              right: 12,
-              fontWeight: "bold",
-            }}
-          />
-        )}
-      </Box>
-
-      <CardContent sx={{ flexGrow: 1, p: 3 }}>
-        <Typography
-          gutterBottom
-          variant="h6"
-          component="h3"
-          fontWeight="bold"
-          sx={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            mb: 1,
-          }}
-        >
-          {product.name}
-        </Typography>
-
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            mb: 2,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            lineHeight: 1.4,
-          }}
-        >
-          {product.description}
-        </Typography>
-
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <Rating value={4.2} precision={0.1} size="small" readOnly />
-          <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-            (4.2)
-          </Typography>
+          {product.category && (
+            <Chip
+              label={product.category.name}
+              size="small"
+              sx={{
+                position: "absolute",
+                top: 12,
+                left: 12,
+                bgcolor: "primary.main",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            />
+          )}
+          {product.stock < 10 && (
+            <Chip
+              label="Low Stock"
+              size="small"
+              color="warning"
+              sx={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                fontWeight: "bold",
+              }}
+            />
+          )}
         </Box>
 
-        <Typography
-          variant="h5"
-          color="primary.main"
-          fontWeight="bold"
-          sx={{ mb: 1 }}
-        >
-          ${product.price ? product.price.toFixed(2) : "0.00"}
-        </Typography>
-
-        {product.stock && (
-          <Typography variant="body2" color="text.secondary">
-            {product.stock} in stock
+        <CardContent sx={{ flexGrow: 1, p: 3 }}>
+          <Typography
+            gutterBottom
+            variant="h6"
+            component="h3"
+            fontWeight="bold"
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              mb: 1,
+            }}
+          >
+            {product.name}
           </Typography>
-        )}
-      </CardContent>
 
-      <Divider />
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              mb: 2,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              lineHeight: 1.4,
+            }}
+          >
+            {product.description}
+          </Typography>
 
-      <CardActions sx={{ p: 2, justifyContent: "space-between" }}>
-        <Button
-          component={Link}
-          to={`/products/${product._id}`}
-          size="small"
-          startIcon={<VisibilityIcon />}
-          sx={{ color: "text.secondary" }}
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Rating value={4.2} precision={0.1} size="small" readOnly />
+            <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+              (4.2)
+            </Typography>
+          </Box>
+
+          <Typography
+            variant="h5"
+            color="primary.main"
+            fontWeight="bold"
+            sx={{ mb: 1 }}
+          >
+            ${product.price ? product.price.toFixed(2) : "0.00"}
+          </Typography>
+
+          {product.stock && (
+            <Typography variant="body2" color="text.secondary">
+              {product.stock} in stock
+            </Typography>
+          )}
+        </CardContent>
+
+        <Divider />
+
+        <CardActions
+          sx={{
+            p: 2,
+            justifyContent: "flex-end",
+            bgcolor: "grey.50",
+          }}
+          onClick={handleActionClick}
         >
-          View
-        </Button>
-
-        <Box sx={{ display: "flex", gap: 1 }}>
           {user && user.isAdmin ? (
-            <>
+            <Box sx={{ display: "flex", gap: 1 }}>
               <IconButton
                 component={Link}
                 to={`/products/${product._id}/edit`}
                 size="small"
-                sx={{ color: "info.main" }}
+                sx={{
+                  color: "info.main",
+                  "&:hover": {
+                    bgcolor: "info.light",
+                    color: "white",
+                    transform: "scale(1.1)",
+                  },
+                  transition: "all 0.2s ease",
+                }}
+                onClick={handleActionClick}
               >
                 <EditIcon />
               </IconButton>
               <IconButton
-                onClick={() => handleDelete(product._id)}
+                onClick={(e) => {
+                  handleActionClick(e);
+                  handleDelete(product._id);
+                }}
                 size="small"
-                sx={{ color: "error.main" }}
+                sx={{
+                  color: "error.main",
+                  "&:hover": {
+                    bgcolor: "error.light",
+                    color: "white",
+                    transform: "scale(1.1)",
+                  },
+                  transition: "all 0.2s ease",
+                }}
               >
                 <DeleteIcon />
               </IconButton>
-            </>
+            </Box>
           ) : (
-            <IconButton
-              onClick={() => handleAddToCart(product._id)}
+            <Button
+              onClick={(e) => {
+                handleActionClick(e);
+                handleAddToCart(product._id);
+              }}
+              variant="contained"
+              startIcon={<ShoppingCartIcon />}
               sx={{
                 bgcolor: "primary.main",
                 color: "white",
+                fontWeight: "bold",
+                textTransform: "none",
+                borderRadius: 2,
+                px: 3,
+                py: 1,
                 "&:hover": {
                   bgcolor: "primary.dark",
-                  transform: "scale(1.1)",
+                  transform: "scale(1.05)",
+                  boxShadow: 4,
                 },
                 transition: "all 0.2s ease",
               }}
             >
-              <ShoppingCartIcon />
-            </IconButton>
+              Add to Cart
+            </Button>
           )}
-        </Box>
-      </CardActions>
-    </Card>
-  );
+        </CardActions>
+      </Card>
+    );
+  };
 
   if (loading) {
     return (
