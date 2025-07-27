@@ -50,7 +50,11 @@ export const authAPI = {
 
 // Products API calls
 export const productsAPI = {
-  getAll: () => apiCall("/products", { method: "GET" }),
+  getAll: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const endpoint = queryString ? `/products?${queryString}` : "/products";
+    return apiCall(endpoint, { method: "GET" });
+  },
 
   getById: (id) => apiCall(`/products/${id}`, { method: "GET" }),
 

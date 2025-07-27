@@ -25,6 +25,7 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
+  Pagination,
   Paper,
   Rating,
   Select,
@@ -33,7 +34,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
@@ -47,7 +48,15 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalProducts: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
+    limit: 8,
+  });
 
   // Handle URL query parameters - run after categories are loaded
   useEffect(() => {
@@ -63,57 +72,60 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
     }
   }, [searchParams, categories]);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const filterAndSortProducts = () => {
-      let filtered = products.filter((product) => {
-        const matchesSearch =
-          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory =
-          selectedCategory === "all" ||
-          product.category?._id === selectedCategory;
-        return matchesSearch && matchesCategory;
-      });
-
-      // Sort products
-      filtered.sort((a, b) => {
-        switch (sortBy) {
-          case "price-low":
-            return a.price - b.price;
-          case "price-high":
-            return b.price - a.price;
-          case "name":
-            return a.name.localeCompare(b.name);
-          case "newest":
-            return new Date(b.createdAt) - new Date(a.createdAt);
-          default:
-            return 0;
-        }
-      });
-
-      setFilteredProducts(filtered);
-    };
-
-    filterAndSortProducts();
-  }, [products, searchTerm, selectedCategory, sortBy]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
+      // Build query parameters
+      const params = {
+        page: currentPage,
+        limit: 8,
+        ...(searchTerm && { search: searchTerm }),
+        ...(selectedCategory !== "all" && { category: selectedCategory }),
+        ...(sortBy && { sortBy }),
+      };
+
       const [productsData, categoriesData] = await Promise.all([
-        productsAPI.getAll(),
+        productsAPI.getAll(params),
         categoryAPI.getAll(),
       ]);
+
       setProducts(productsData.products || []);
+      setPagination(
+        productsData.pagination || {
+          currentPage: 1,
+          totalPages: 1,
+          totalProducts: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+          limit: 8,
+        }
+      );
       setCategories(categoriesData.categories || []);
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
       setLoading(false);
     }
+  }, [currentPage, searchTerm, selectedCategory, sortBy]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Reset to first page when filters change
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleCategoryChange = (value) => {
+    setSelectedCategory(value);
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    setCurrentPage(1);
   };
 
   const handleDelete = async (productId) => {
@@ -127,6 +139,11 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
     if (onAddToCart) {
       onAddToCart(productId);
     }
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const ProductCard = ({ product }) => (
@@ -398,7 +415,7 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
               variant="outlined"
               size="small"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -425,7 +442,7 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
               <Select
                 value={selectedCategory}
                 label="Category"
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => handleCategoryChange(e.target.value)}
               >
                 <MenuItem value="all">All Categories</MenuItem>
                 {categories.map((category) => (
@@ -448,7 +465,7 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
               <Select
                 value={sortBy}
                 label="Sort By"
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => handleSortChange(e.target.value)}
               >
                 <MenuItem value="name">Name (A-Z)</MenuItem>
                 <MenuItem value="price-low">Price (Low to High)</MenuItem>
@@ -471,8 +488,13 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
           }}
         >
           <Typography variant="h6" color="text.secondary">
-            {filteredProducts.length}{" "}
-            {filteredProducts.length === 1 ? "product" : "products"} found
+            {pagination.totalProducts}{" "}
+            {pagination.totalProducts === 1 ? "product" : "products"} found
+            {pagination.totalPages > 1 && (
+              <Typography component="span" variant="body2" sx={{ ml: 1 }}>
+                (Page {pagination.currentPage} of {pagination.totalPages})
+              </Typography>
+            )}
           </Typography>
           <IconButton sx={{ alignSelf: { xs: "flex-end", sm: "auto" } }}>
             <GridViewIcon />
@@ -480,7 +502,7 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
         </Box>
 
         {/* Products Grid */}
-        {filteredProducts.length === 0 ? (
+        {products.length === 0 ? (
           <Paper
             sx={{ p: { xs: 4, md: 8 }, textAlign: "center", borderRadius: 3 }}
           >
@@ -492,8 +514,8 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
             </Typography>
             <Button
               onClick={() => {
-                setSearchTerm("");
-                setSelectedCategory("all");
+                handleSearchChange("");
+                handleCategoryChange("all");
               }}
               variant="outlined"
               size="large"
@@ -503,27 +525,50 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
           </Paper>
         ) : (
           <Fade in timeout={500}>
-            <Grid container spacing={3}>
-              {filteredProducts.map((product) => (
-                <Grid
-                  item
-                  xs={12} // Full width on mobile
-                  sm={6} // Half width on small screens
-                  lg={4} // One-third width on large screens
-                  key={product._id}
-                  sx={{
-                    display: "flex",
-                    // Responsive maxWidth and minWidth
-                    maxWidth: { xs: "100%", sm: "40%", lg: "30%" },
-                    minWidth: { xs: "100%", sm: "40%", lg: "30%" },
-                    width: "100%",
-                    margin: "0 auto",
-                  }}
-                >
-                  <ProductCard product={product} />
-                </Grid>
-              ))}
-            </Grid>
+            <Box>
+              <Grid container spacing={3}>
+                {products.map((product) => (
+                  <Grid
+                    item
+                    xs={12} // Full width on mobile
+                    sm={6} // Half width on small screens
+                    lg={3} // One-third width on large screens
+                    key={product._id}
+                    sx={{
+                      display: "flex",
+                      // Responsive maxWidth and minWidth
+                      maxWidth: { xs: "100%", sm: "40%", lg: "22%" },
+                      minWidth: { xs: "100%", sm: "40%", lg: "22%" },
+                      width: "100%",
+                      margin: "0 auto",
+                    }}
+                  >
+                    <ProductCard product={product} />
+                  </Grid>
+                ))}
+              </Grid>
+
+              {/* Pagination */}
+              {pagination.totalPages > 1 && (
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                  <Pagination
+                    count={pagination.totalPages}
+                    page={pagination.currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                    size="large"
+                    showFirstButton
+                    showLastButton
+                    sx={{
+                      "& .MuiPagination-ul": {
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                      },
+                    }}
+                  />
+                </Box>
+              )}
+            </Box>
           </Fade>
         )}
       </Container>
