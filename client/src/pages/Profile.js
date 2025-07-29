@@ -23,13 +23,17 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Toast from "../components/Toast";
+import { useDarkMode } from "../contexts/DarkModeContext";
 import { authAPI } from "../services/api";
 
-const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
+// Use memo to prevent unnecessary re-renders
+const Profile = memo(({ user, onLogout, cartItemCount, onUserUpdate }) => {
+  const { isDarkMode } = useDarkMode();
+
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -40,11 +44,11 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
     type: "success",
   });
 
-  // Profile form state
-  const [profileData, setProfileData] = useState({
+  // Profile form state - initialize with user data immediately
+  const [profileData, setProfileData] = useState(() => ({
     username: user?.username || "",
     email: user?.email || "",
-  });
+  }));
 
   // Password form state
   const [passwordData, setPasswordData] = useState({
@@ -59,125 +63,221 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
     confirm: false,
   });
 
-  const handleTabChange = (event, newValue) => {
+  // Update profile data only when user prop changes and is different
+  useEffect(() => {
+    if (user) {
+      setProfileData((prevData) => {
+        if (
+          prevData.username !== user.username ||
+          prevData.email !== user.email
+        ) {
+          return {
+            username: user.username || "",
+            email: user.email || "",
+          };
+        }
+        return prevData;
+      });
+    }
+  }, [user]);
+
+  // Theme-aware styles
+  const styles = useMemo(
+    () => ({
+      headerBackground: {
+        background: isDarkMode
+          ? "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"
+          : "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+      },
+      cardStyle: {
+        backgroundColor: isDarkMode
+          ? "rgba(45, 45, 45, 0.8)"
+          : "rgba(255, 255, 255, 0.9)",
+        border: `1px solid ${
+          isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"
+        }`,
+        backdropFilter: "blur(10px)",
+        borderRadius: 3,
+      },
+      textFieldStyle: {
+        "& .MuiOutlinedInput-root": {
+          borderRadius: 2,
+          backgroundColor: isDarkMode
+            ? "rgba(255, 255, 255, 0.05)"
+            : "rgba(0, 0, 0, 0.02)",
+          "&:hover": {
+            backgroundColor: isDarkMode
+              ? "rgba(255, 255, 255, 0.08)"
+              : "rgba(0, 0, 0, 0.04)",
+          },
+          "&.Mui-focused": {
+            backgroundColor: isDarkMode
+              ? "rgba(255, 255, 255, 0.1)"
+              : "rgba(0, 0, 0, 0.06)",
+          },
+        },
+      },
+      buttonStyle: {
+        borderRadius: 2,
+        px: 4,
+        py: 1.5,
+        textTransform: "none",
+        fontWeight: "bold",
+        background: isDarkMode
+          ? "linear-gradient(45deg, #667eea 30%, #764ba2 90%)"
+          : "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
+        "&:hover": {
+          background: isDarkMode
+            ? "linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)"
+            : "linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)",
+        },
+      },
+    }),
+    [isDarkMode]
+  );
+
+  // Memoize tab change handler to prevent recreation on render
+  const handleTabChange = useCallback((event, newValue) => {
     setActiveTab(newValue);
     setErrors({});
     setSuccess("");
-  };
+  }, []);
 
-  const handleProfileChange = (e) => {
+  const handleProfileChange = useCallback((e) => {
     const { name, value } = e.target;
     setProfileData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
+    // Clear errors for this specific field if it exists
+    setErrors((prev) => {
+      if (prev[name]) {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      }
+      return prev;
+    });
+  }, []);
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = useCallback((e) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
+    // Clear errors for this specific field if it exists
+    setErrors((prev) => {
+      if (prev[name]) {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      }
+      return prev;
+    });
+  }, []);
 
-  const togglePasswordVisibility = (field) => {
+  const togglePasswordVisibility = useCallback((field) => {
     setShowPasswords((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
-  };
+  }, []);
 
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrors({});
+  const handleUpdateProfile = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      setErrors({});
 
-    try {
-      const response = await authAPI.updateProfile(profileData);
-      setSuccess("Profile updated successfully!");
-      setToast({
-        open: true,
-        message: "Profile updated successfully!",
-        type: "success",
-      });
-
-      // Update user data in parent component
-      if (onUserUpdate) {
-        onUserUpdate(response.user);
-      }
-    } catch (err) {
-      if (err.errors) {
-        const errorMap = {};
-        err.errors.forEach((error) => {
-          if (error.msg.includes("Email")) {
-            errorMap.email = error.msg;
-          } else if (error.msg.includes("Username")) {
-            errorMap.username = error.msg;
-          } else {
-            errorMap.general = error.msg;
-          }
+      try {
+        const response = await authAPI.updateProfile(profileData);
+        setSuccess("Profile updated successfully!");
+        setToast({
+          open: true,
+          message: "Profile updated successfully!",
+          type: "success",
         });
-        setErrors(errorMap);
-      } else {
-        setErrors({ general: err.error || "An error occurred" });
+
+        // Update user data in parent component
+        if (onUserUpdate) {
+          onUserUpdate(response.user);
+        }
+      } catch (err) {
+        if (err.errors) {
+          const errorMap = {};
+          err.errors.forEach((error) => {
+            if (error.msg.includes("Email")) {
+              errorMap.email = error.msg;
+            } else if (error.msg.includes("Username")) {
+              errorMap.username = error.msg;
+            } else {
+              errorMap.general = error.msg;
+            }
+          });
+          setErrors(errorMap);
+        } else {
+          setErrors({ general: err.error || "An error occurred" });
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [profileData, onUserUpdate]
+  );
 
-  const handleUpdatePassword = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrors({});
+  const handleUpdatePassword = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      setErrors({});
 
-    try {
-      await authAPI.updatePassword(passwordData);
-      setSuccess("Password updated successfully!");
-      setToast({
-        open: true,
-        message: "Password updated successfully!",
-        type: "success",
-      });
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } catch (err) {
-      if (err.errors) {
-        const errorMap = {};
-        err.errors.forEach((error) => {
-          if (error.msg.includes("Current password")) {
-            errorMap.currentPassword = error.msg;
-          } else if (error.msg.includes("match")) {
-            errorMap.confirmPassword = error.msg;
-          } else if (error.msg.includes("6 characters")) {
-            errorMap.newPassword = error.msg;
-          } else {
-            errorMap.general = error.msg;
-          }
+      try {
+        await authAPI.updatePassword(passwordData);
+        setSuccess("Password updated successfully!");
+        setToast({
+          open: true,
+          message: "Password updated successfully!",
+          type: "success",
         });
-        setErrors(errorMap);
-      } else {
-        setErrors({ general: err.error || "An error occurred" });
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } catch (err) {
+        if (err.errors) {
+          const errorMap = {};
+          err.errors.forEach((error) => {
+            if (error.msg.includes("Current password")) {
+              errorMap.currentPassword = error.msg;
+            } else if (error.msg.includes("match")) {
+              errorMap.confirmPassword = error.msg;
+            } else if (error.msg.includes("6 characters")) {
+              errorMap.newPassword = error.msg;
+            } else {
+              errorMap.general = error.msg;
+            }
+          });
+          setErrors(errorMap);
+        } else {
+          setErrors({ general: err.error || "An error occurred" });
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [passwordData]
+  );
 
-  const TabPanel = ({ children, value, index }) => (
-    <div role="tabpanel" hidden={value !== index}>
-      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
-    </div>
+  // Memoize the TabPanel component to prevent unnecessary re-renders
+  const TabPanel = useCallback(
+    ({ children, value, index }) => (
+      <div role="tabpanel" hidden={value !== index}>
+        {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
+      </div>
+    ),
+    []
   );
 
   return (
@@ -185,16 +285,30 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
       <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
 
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper elevation={1} sx={{ borderRadius: 3, overflow: "hidden" }}>
+        <Paper elevation={3} sx={{ ...styles.cardStyle, overflow: "hidden" }}>
           {/* Header Section */}
-          <Box sx={{ bgcolor: "primary.main", color: "common.white", p: 4 }}>
+          <Box sx={{ ...styles.headerBackground, color: "common.white", p: 4 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <AccountCircle sx={{ fontSize: 48 }} />
+              <AccountCircle sx={{ fontSize: 48, opacity: 0.9 }} />
               <Box>
-                <Typography variant="h4" fontWeight="bold">
+                <Typography
+                  variant="h4"
+                  fontWeight="bold"
+                  sx={{
+                    // textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                    color: "white",
+                  }}
+                >
                   My Profile
                 </Typography>
-                <Typography variant="h6" sx={{ opacity: 0.9 }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    opacity: 0.9,
+                    // textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                    color: "white",
+                  }}
+                >
                   Manage your account settings
                 </Typography>
               </Box>
@@ -202,7 +316,17 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
           </Box>
 
           {/* Tabs */}
-          <Box sx={{ bgcolor: "background.default", px: 4 }}>
+          <Box
+            sx={{
+              bgcolor: isDarkMode
+                ? "rgba(30, 30, 30, 0.8)"
+                : "rgba(245, 245, 245, 0.8)",
+              px: 4,
+              borderBottom: `1px solid ${
+                isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"
+              }`,
+            }}
+          >
             <Tabs
               value={activeTab}
               onChange={handleTabChange}
@@ -211,6 +335,17 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                   textTransform: "none",
                   fontSize: "1rem",
                   fontWeight: "medium",
+                  color: isDarkMode
+                    ? "rgba(255, 255, 255, 0.7)"
+                    : "rgba(0, 0, 0, 0.7)",
+                  "&.Mui-selected": {
+                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                  },
+                },
+                "& .MuiTabs-indicator": {
+                  backgroundColor: isDarkMode ? "#90caf9" : "#1976d2",
+                  height: 3,
+                  borderRadius: "2px 2px 0 0",
                 },
               }}
             >
@@ -228,30 +363,60 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
           </Box>
 
           {/* Tab Content */}
-          <CardContent sx={{ p: 4 }}>
+          <CardContent
+            sx={{
+              p: 4,
+              bgcolor: isDarkMode
+                ? "rgba(18, 18, 18, 0.6)"
+                : "rgba(255, 255, 255, 0.8)",
+            }}
+          >
             {errors.general && (
-              <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+              <Alert
+                severity="error"
+                sx={{
+                  mb: 3,
+                  borderRadius: 2,
+                  bgcolor: isDarkMode ? "rgba(244, 67, 54, 0.1)" : undefined,
+                  color: isDarkMode ? "#ffcdd2" : undefined,
+                }}
+              >
                 {errors.general}
               </Alert>
             )}
 
             {success && (
-              <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
+              <Alert
+                severity="success"
+                sx={{
+                  mb: 3,
+                  borderRadius: 2,
+                  bgcolor: isDarkMode ? "rgba(76, 175, 80, 0.1)" : undefined,
+                  color: isDarkMode ? "#c8e6c9" : undefined,
+                }}
+              >
                 {success}
               </Alert>
             )}
 
             {/* Profile Information Tab */}
             <TabPanel value={activeTab} index={0}>
-              <Card elevation={0} sx={{ border: 1, borderColor: "divider" }}>
+              <Card elevation={0} sx={{ ...styles.cardStyle }}>
                 <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h6" fontWeight="bold" gutterBottom>
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    gutterBottom
+                    sx={{
+                      color: isDarkMode ? "#e3f2fd" : "#1565c0",
+                    }}
+                  >
                     Update Profile Information
                   </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 3 }}
+                    sx={{ mb: 3, opacity: 0.8 }}
                   >
                     Update your username and email address
                   </Typography>
@@ -260,6 +425,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                     <Grid container spacing={3}>
                       <Grid item xs={12}>
                         <TextField
+                          key={`username-field-${profileData.username}`}
                           required
                           fullWidth
                           id="username"
@@ -272,20 +438,21 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <Person />
+                                <Person
+                                  sx={{
+                                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                                  }}
+                                />
                               </InputAdornment>
                             ),
                           }}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: 1.5,
-                            },
-                          }}
+                          sx={styles.textFieldStyle}
                         />
                       </Grid>
 
                       <Grid item xs={12}>
                         <TextField
+                          key={`email-field-${profileData.email}`}
                           required
                           fullWidth
                           id="email"
@@ -299,15 +466,15 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <Email />
+                                <Email
+                                  sx={{
+                                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                                  }}
+                                />
                               </InputAdornment>
                             ),
                           }}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: 1.5,
-                            },
-                          }}
+                          sx={styles.textFieldStyle}
                         />
                       </Grid>
 
@@ -318,13 +485,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                           size="large"
                           disabled={loading}
                           startIcon={<Save />}
-                          sx={{
-                            borderRadius: 1.5,
-                            px: 4,
-                            py: 1.5,
-                            textTransform: "none",
-                            fontWeight: "bold",
-                          }}
+                          sx={styles.buttonStyle}
                         >
                           {loading ? "Updating..." : "Update Profile"}
                         </Button>
@@ -337,15 +498,22 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
 
             {/* Change Password Tab */}
             <TabPanel value={activeTab} index={1}>
-              <Card elevation={0} sx={{ border: 1, borderColor: "divider" }}>
+              <Card elevation={0} sx={{ ...styles.cardStyle }}>
                 <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h6" fontWeight="bold" gutterBottom>
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    gutterBottom
+                    sx={{
+                      color: isDarkMode ? "#e3f2fd" : "#1565c0",
+                    }}
+                  >
                     Change Password
                   </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 3 }}
+                    sx={{ mb: 3, opacity: 0.8 }}
                   >
                     Ensure your account is using a long, random password to stay
                     secure
@@ -355,6 +523,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                     <Grid container spacing={3}>
                       <Grid item xs={12}>
                         <TextField
+                          key={`current-password-field-${activeTab}`}
                           required
                           fullWidth
                           id="currentPassword"
@@ -368,7 +537,11 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <Lock />
+                                <Lock
+                                  sx={{
+                                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                                  }}
+                                />
                               </InputAdornment>
                             ),
                             endAdornment: (
@@ -378,6 +551,9 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                                     togglePasswordVisibility("current")
                                   }
                                   edge="end"
+                                  sx={{
+                                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                                  }}
                                 >
                                   {showPasswords.current ? (
                                     <VisibilityOff />
@@ -388,16 +564,13 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                               </InputAdornment>
                             ),
                           }}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: 1.5,
-                            },
-                          }}
+                          sx={styles.textFieldStyle}
                         />
                       </Grid>
 
                       <Grid item xs={12}>
                         <TextField
+                          key={`new-password-field-${activeTab}`}
                           required
                           fullWidth
                           id="newPassword"
@@ -414,7 +587,11 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <Lock />
+                                <Lock
+                                  sx={{
+                                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                                  }}
+                                />
                               </InputAdornment>
                             ),
                             endAdornment: (
@@ -424,6 +601,9 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                                     togglePasswordVisibility("new")
                                   }
                                   edge="end"
+                                  sx={{
+                                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                                  }}
                                 >
                                   {showPasswords.new ? (
                                     <VisibilityOff />
@@ -434,16 +614,13 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                               </InputAdornment>
                             ),
                           }}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: 1.5,
-                            },
-                          }}
+                          sx={styles.textFieldStyle}
                         />
                       </Grid>
 
                       <Grid item xs={12}>
                         <TextField
+                          key={`confirm-password-field-${activeTab}`}
                           required
                           fullWidth
                           id="confirmPassword"
@@ -457,7 +634,11 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <Lock />
+                                <Lock
+                                  sx={{
+                                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                                  }}
+                                />
                               </InputAdornment>
                             ),
                             endAdornment: (
@@ -467,6 +648,9 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                                     togglePasswordVisibility("confirm")
                                   }
                                   edge="end"
+                                  sx={{
+                                    color: isDarkMode ? "#90caf9" : "#1976d2",
+                                  }}
                                 >
                                   {showPasswords.confirm ? (
                                     <VisibilityOff />
@@ -477,11 +661,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                               </InputAdornment>
                             ),
                           }}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: 1.5,
-                            },
-                          }}
+                          sx={styles.textFieldStyle}
                         />
                       </Grid>
 
@@ -492,13 +672,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
                           size="large"
                           disabled={loading}
                           startIcon={<Save />}
-                          sx={{
-                            borderRadius: 1.5,
-                            px: 4,
-                            py: 1.5,
-                            textTransform: "none",
-                            fontWeight: "bold",
-                          }}
+                          sx={styles.buttonStyle}
                         >
                           {loading ? "Updating..." : "Update Password"}
                         </Button>
@@ -522,6 +696,6 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
       />
     </>
   );
-};
+});
 
 export default Profile;
