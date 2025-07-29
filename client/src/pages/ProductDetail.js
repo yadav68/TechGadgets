@@ -446,7 +446,7 @@ const ProductDetail = ({
                         sx={{
                           p: 2,
                           borderRadius: 2,
-                          bgcolor: "grey.50",
+                          bgcolor: "background.default",
                           border: "1px solid",
                           borderColor: "divider",
                         }}
@@ -494,7 +494,12 @@ const ProductDetail = ({
                       transition: "all 0.3s ease",
                       "&:hover": {
                         transform: "translateY(-4px)",
-                        boxShadow: "0 8px 25px rgba(0,0,0,0.12)",
+                        boxShadow: (theme) =>
+                          `0 8px 25px ${
+                            theme.palette.mode === "dark"
+                              ? "rgba(255,255,255,0.12)"
+                              : "rgba(0,0,0,0.12)"
+                          }`,
                       },
                       borderRadius: 3,
                     }}

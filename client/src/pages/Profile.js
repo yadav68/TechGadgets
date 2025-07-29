@@ -187,7 +187,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Paper elevation={1} sx={{ borderRadius: 3, overflow: "hidden" }}>
           {/* Header Section */}
-          <Box sx={{ bgcolor: "primary.main", color: "white", p: 4 }}>
+          <Box sx={{ bgcolor: "primary.main", color: "common.white", p: 4 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <AccountCircle sx={{ fontSize: 48 }} />
               <Box>
@@ -202,7 +202,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
           </Box>
 
           {/* Tabs */}
-          <Box sx={{ bgcolor: "grey.50", px: 4 }}>
+          <Box sx={{ bgcolor: "background.default", px: 4 }}>
             <Tabs
               value={activeTab}
               onChange={handleTabChange}
@@ -243,7 +243,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
 
             {/* Profile Information Tab */}
             <TabPanel value={activeTab} index={0}>
-              <Card elevation={0} sx={{ border: 1, borderColor: "grey.200" }}>
+              <Card elevation={0} sx={{ border: 1, borderColor: "divider" }}>
                 <CardContent sx={{ p: 4 }}>
                   <Typography variant="h6" fontWeight="bold" gutterBottom>
                     Update Profile Information
@@ -337,7 +337,7 @@ const Profile = ({ user, onLogout, cartItemCount, onUserUpdate }) => {
 
             {/* Change Password Tab */}
             <TabPanel value={activeTab} index={1}>
-              <Card elevation={0} sx={{ border: 1, borderColor: "grey.200" }}>
+              <Card elevation={0} sx={{ border: 1, borderColor: "divider" }}>
                 <CardContent sx={{ p: 4 }}>
                   <Typography variant="h6" fontWeight="bold" gutterBottom>
                     Change Password

@@ -35,6 +35,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import DarkModeToggle from "./DarkModeToggle";
 
 const Header = ({ user, onLogout, cartItemCount }) => {
   const navigate = useNavigate();
@@ -87,24 +88,27 @@ const Header = ({ user, onLogout, cartItemCount }) => {
           alignItems: "center",
           justifyContent: "space-between",
           borderBottom: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
           bgcolor: "primary.50",
         }}
       >
         <Typography variant="h6" fontWeight="bold" color="primary.main">
           TechGadgets
         </Typography>
-        <IconButton
-          onClick={handleDrawerToggle}
-          sx={{
-            bgcolor: "white",
-            width: 36,
-            height: 36,
-            "&:hover": { bgcolor: "grey.100" },
-          }}
-        >
-          <CloseIcon fontSize="small" />
-        </IconButton>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <DarkModeToggle />
+          <IconButton
+            onClick={handleDrawerToggle}
+            sx={{
+              bgcolor: "background.paper",
+              width: 36,
+              height: 36,
+              "&:hover": { bgcolor: "action.hover" },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
       </Box>
 
       <Box sx={{ p: 3 }}>
@@ -132,11 +136,13 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                 bgcolor: isActivePage(item.path)
                   ? "primary.main"
                   : "transparent",
-                color: isActivePage(item.path) ? "white" : "text.primary",
+                color: isActivePage(item.path)
+                  ? "primary.contrastText"
+                  : "text.primary",
                 border: "1px solid",
                 borderColor: isActivePage(item.path)
                   ? "primary.main"
-                  : "grey.200",
+                  : "divider",
                 transition: "all 0.2s ease-in-out",
                 "&:hover": {
                   bgcolor: isActivePage(item.path)
@@ -144,13 +150,19 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                     : "primary.50",
                   borderColor: "primary.main",
                   transform: "translateX(4px)",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  boxShadow: `0 4px 12px ${
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.1)"
+                      : "rgba(0,0,0,0.1)"
+                  }`,
                 },
               }}
             >
               <ListItemIcon
                 sx={{
-                  color: isActivePage(item.path) ? "white" : "primary.main",
+                  color: isActivePage(item.path)
+                    ? "primary.contrastText"
+                    : "primary.main",
                   minWidth: 40,
                 }}
               >
@@ -189,7 +201,7 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                   borderRadius: 2,
                   p: 3,
                   border: "1px solid",
-                  borderColor: "primary.200",
+                  borderColor: "divider",
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -227,7 +239,9 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                         bgcolor: user.isAdmin
                           ? "secondary.main"
                           : "success.main",
-                        color: "white",
+                        color: user.isAdmin
+                          ? "secondary.contrastText"
+                          : "success.contrastText",
                         fontWeight: "bold",
                         fontSize: "0.75rem",
                       }}
@@ -250,11 +264,13 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                   bgcolor: isActivePage("/orders")
                     ? "primary.main"
                     : "transparent",
-                  color: isActivePage("/orders") ? "white" : "text.primary",
+                  color: isActivePage("/orders")
+                    ? "primary.contrastText"
+                    : "text.primary",
                   border: "1px solid",
                   borderColor: isActivePage("/orders")
                     ? "primary.main"
-                    : "grey.200",
+                    : "divider",
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
                     bgcolor: isActivePage("/orders")
@@ -262,13 +278,19 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                       : "primary.50",
                     borderColor: "primary.main",
                     transform: "translateX(4px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    boxShadow: `0 4px 12px ${
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(0,0,0,0.1)"
+                    }`,
                   },
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    color: isActivePage("/orders") ? "white" : "primary.main",
+                    color: isActivePage("/orders")
+                      ? "primary.contrastText"
+                      : "primary.main",
                     minWidth: 40,
                   }}
                 >
@@ -296,11 +318,13 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                   bgcolor: isActivePage("/profile")
                     ? "primary.main"
                     : "transparent",
-                  color: isActivePage("/profile") ? "white" : "text.primary",
+                  color: isActivePage("/profile")
+                    ? "primary.contrastText"
+                    : "text.primary",
                   border: "1px solid",
                   borderColor: isActivePage("/profile")
                     ? "primary.main"
-                    : "grey.200",
+                    : "divider",
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
                     bgcolor: isActivePage("/profile")
@@ -308,13 +332,19 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                       : "primary.50",
                     borderColor: "primary.main",
                     transform: "translateX(4px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    boxShadow: `0 4px 12px ${
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(0,0,0,0.1)"
+                    }`,
                   },
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    color: isActivePage("/profile") ? "white" : "primary.main",
+                    color: isActivePage("/profile")
+                      ? "primary.contrastText"
+                      : "primary.main",
                     minWidth: 40,
                   }}
                 >
@@ -353,7 +383,11 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                 "&:hover": {
                   bgcolor: "error.50",
                   transform: "translateY(-2px)",
-                  boxShadow: "0 4px 12px rgba(244, 67, 54, 0.2)",
+                  boxShadow: `0 4px 12px ${
+                    theme.palette.mode === "dark"
+                      ? "rgba(244, 67, 54, 0.3)"
+                      : "rgba(244, 67, 54, 0.2)"
+                  }`,
                 },
               }}
             >
@@ -388,7 +422,11 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
                     transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    boxShadow: `0 4px 12px ${
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(0,0,0,0.1)"
+                    }`,
                   },
                 }}
               >
@@ -410,7 +448,11 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
                     transform: "translateY(-2px)",
-                    boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+                    boxShadow: `0 6px 16px ${
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.15)"
+                        : "rgba(0,0,0,0.15)"
+                    }`,
                   },
                 }}
               >
@@ -429,12 +471,19 @@ const Header = ({ user, onLogout, cartItemCount }) => {
         position="sticky"
         elevation={0}
         sx={{
-          bgcolor: "rgba(255, 255, 255, 0.95)",
+          bgcolor:
+            theme.palette.mode === "dark"
+              ? "rgba(18, 18, 18, 0.95)"
+              : "rgba(255, 255, 255, 0.95)",
           color: "text.primary",
           borderBottom: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
           backdropFilter: "blur(20px)",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+          boxShadow: `0 2px 12px ${
+            theme.palette.mode === "dark"
+              ? "rgba(0,0,0,0.3)"
+              : "rgba(0,0,0,0.08)"
+          }`,
         }}
       >
         <Container maxWidth="xl">
@@ -450,7 +499,7 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                   mr: 2,
                   bgcolor: "primary.50",
                   border: "1px solid",
-                  borderColor: "primary.200",
+                  borderColor: "divider",
                   "&:hover": {
                     bgcolor: "primary.100",
                   },
@@ -470,7 +519,10 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                 textDecoration: "none",
                 fontWeight: "bold",
                 mr: 4,
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background:
+                  theme.palette.mode === "dark"
+                    ? "linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%)"
+                    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -493,7 +545,9 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                     to={item.path}
                     startIcon={item.icon}
                     sx={{
-                      color: isActivePage(item.path) ? "white" : "text.primary",
+                      color: isActivePage(item.path)
+                        ? "primary.contrastText"
+                        : "text.primary",
                       fontWeight: "medium",
                       bgcolor: isActivePage(item.path)
                         ? "primary.main"
@@ -513,7 +567,11 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                           : "primary.50",
                         borderColor: "primary.main",
                         transform: "translateY(-2px)",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        boxShadow: `0 4px 12px ${
+                          theme.palette.mode === "dark"
+                            ? "rgba(255,255,255,0.1)"
+                            : "rgba(0,0,0,0.1)"
+                        }`,
                       },
                     }}
                   >
@@ -525,6 +583,9 @@ const Header = ({ user, onLogout, cartItemCount }) => {
 
             {/* Right side actions */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              {/* Dark Mode Toggle */}
+              <DarkModeToggle />
+
               {/* Cart Icon */}
               <IconButton
                 color="inherit"
@@ -533,7 +594,7 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                 sx={{
                   bgcolor: "background.paper",
                   border: "1px solid",
-                  borderColor: "grey.200",
+                  borderColor: "divider",
                   color: "text.primary",
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
@@ -541,7 +602,11 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                     borderColor: "primary.main",
                     color: "primary.main",
                     transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    boxShadow: `0 4px 12px ${
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(0,0,0,0.1)"
+                    }`,
                   },
                 }}
               >
@@ -572,7 +637,7 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                         sx={{
                           borderRadius: 2,
                           border: "1px solid",
-                          borderColor: "grey.200",
+                          borderColor: "divider",
                           bgcolor: "background.paper",
                           color: "text.primary",
                           textTransform: "none",
@@ -585,7 +650,11 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                             bgcolor: "primary.50",
                             borderColor: "primary.main",
                             transform: "translateY(-2px)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                            boxShadow: `0 4px 12px ${
+                              theme.palette.mode === "dark"
+                                ? "rgba(255,255,255,0.1)"
+                                : "rgba(0,0,0,0.1)"
+                            }`,
                           },
                         }}
                         startIcon={
@@ -635,9 +704,13 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                             mt: 1,
                             minWidth: 320,
                             borderRadius: 3,
-                            boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+                            boxShadow: `0 12px 40px ${
+                              theme.palette.mode === "dark"
+                                ? "rgba(0,0,0,0.5)"
+                                : "rgba(0,0,0,0.15)"
+                            }`,
                             border: "1px solid",
-                            borderColor: "grey.200",
+                            borderColor: "divider",
                             p: 2,
                           },
                         }}
@@ -685,7 +758,9 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                                   bgcolor: user.isAdmin
                                     ? "secondary.main"
                                     : "success.main",
-                                  color: "white",
+                                  color: user.isAdmin
+                                    ? "secondary.contrastText"
+                                    : "success.contrastText",
                                   fontWeight: "bold",
                                   fontSize: "0.75rem",
                                 }}
@@ -834,12 +909,16 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                           px: 3,
                           py: 1,
                           border: "1px solid",
-                          borderColor: "grey.300",
+                          borderColor: "divider",
                           transition: "all 0.2s ease-in-out",
                           "&:hover": {
                             borderColor: "primary.main",
                             transform: "translateY(-2px)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                            boxShadow: `0 4px 12px ${
+                              theme.palette.mode === "dark"
+                                ? "rgba(255,255,255,0.1)"
+                                : "rgba(0,0,0,0.1)"
+                            }`,
                           },
                         }}
                       >
@@ -859,7 +938,11 @@ const Header = ({ user, onLogout, cartItemCount }) => {
                           transition: "all 0.2s ease-in-out",
                           "&:hover": {
                             transform: "translateY(-2px)",
-                            boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+                            boxShadow: `0 6px 16px ${
+                              theme.palette.mode === "dark"
+                                ? "rgba(255,255,255,0.15)"
+                                : "rgba(0,0,0,0.15)"
+                            }`,
                           },
                         }}
                       >
@@ -887,7 +970,11 @@ const Header = ({ user, onLogout, cartItemCount }) => {
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
             width: 300,
-            boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+            boxShadow: `0 12px 40px ${
+              theme.palette.mode === "dark"
+                ? "rgba(0,0,0,0.5)"
+                : "rgba(0,0,0,0.15)"
+            }`,
             border: "none",
           },
         }}

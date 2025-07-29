@@ -286,7 +286,7 @@ const OrderDetail = ({ user, onLogout, cartItemCount }) => {
                 mb: 4,
                 borderRadius: 3,
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                color: "white",
+                color: "common.white",
               }}
             >
               <Stack
@@ -324,11 +324,11 @@ const OrderDetail = ({ user, onLogout, cartItemCount }) => {
                     variant="outlined"
                     startIcon={<ArrowBackIcon />}
                     sx={{
-                      borderColor: "white",
-                      color: "white",
+                      borderColor: "common.white",
+                      color: "common.white",
                       "&:hover": {
-                        borderColor: "white",
-                        bgcolor: "rgba(255,255,255,0.1)",
+                        borderColor: "common.white",
+                        bgcolor: "action.hover",
                       },
                       order: { xs: 1, sm: 0 },
                     }}
@@ -344,12 +344,12 @@ const OrderDetail = ({ user, onLogout, cartItemCount }) => {
                     }}
                   >
                     <IconButton
-                      sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)" }}
+                      sx={{ color: "common.white", bgcolor: "action.hover" }}
                     >
                       <PrintIcon />
                     </IconButton>
                     <IconButton
-                      sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)" }}
+                      sx={{ color: "common.white", bgcolor: "action.hover" }}
                     >
                       <DownloadIcon />
                     </IconButton>
@@ -502,7 +502,7 @@ const OrderDetail = ({ user, onLogout, cartItemCount }) => {
                               sx={{
                                 px: 0,
                                 py: 2,
-                                "&:hover": { bgcolor: "grey.50" },
+                                "&:hover": { bgcolor: "action.hover" },
                                 borderRadius: 2,
                                 transition: "background-color 0.2s ease",
                               }}
