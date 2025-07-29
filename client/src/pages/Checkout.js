@@ -419,7 +419,13 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
                   <Typography variant="h6" fontWeight="bold" gutterBottom>
                     Shipping Information
                   </Typography>
-                  <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1.5 }}>
+                  <Box
+                    sx={{
+                      bgcolor: "background.default",
+                      p: 2,
+                      borderRadius: 1.5,
+                    }}
+                  >
                     <Typography variant="body2">
                       {shippingAddress.firstName} {shippingAddress.lastName}
                       <br />
@@ -441,7 +447,13 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
                   <Typography variant="h6" fontWeight="bold" gutterBottom>
                     Payment Method
                   </Typography>
-                  <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1.5 }}>
+                  <Box
+                    sx={{
+                      bgcolor: "background.default",
+                      p: 2,
+                      borderRadius: 1.5,
+                    }}
+                  >
                     <Typography variant="body2">
                       {paymentMethod
                         .replace("_", " ")
@@ -574,7 +586,7 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
       <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
 
       {/* Hero Section */}
-      <Box sx={{ bgcolor: "grey.50", py: 4 }}>
+      <Box sx={{ bgcolor: "background.default", py: 4 }}>
         <Container maxWidth="lg">
           <Breadcrumbs sx={{ mb: 2 }}>
             <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
@@ -623,8 +635,13 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
                         alignItems: "center",
                         justifyContent: "center",
                         bgcolor:
-                          index <= activeStep ? "primary.main" : "grey.300",
-                        color: index <= activeStep ? "white" : "grey.600",
+                          index <= activeStep
+                            ? "primary.main"
+                            : "action.disabled",
+                        color:
+                          index <= activeStep
+                            ? "common.white"
+                            : "text.disabled",
                         transition: "all 0.3s ease",
                       }}
                     >
@@ -646,7 +663,9 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
                         width: 40,
                         height: 2,
                         bgcolor:
-                          index < activeStep ? "primary.main" : "grey.300",
+                          index < activeStep
+                            ? "primary.main"
+                            : "action.disabled",
                         transition: "all 0.3s ease",
                         mt: -2,
                       }}
@@ -676,7 +695,7 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
               <Box
                 sx={{
                   p: 4,
-                  bgcolor: "grey.50",
+                  bgcolor: "background.default",
                   display: "flex",
                   justifyContent: "space-between",
                 }}
@@ -746,7 +765,9 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
               elevation={1}
               sx={{ borderRadius: 3, position: "sticky", top: 24 }}
             >
-              <Box sx={{ bgcolor: "primary.main", color: "white", p: 3 }}>
+              <Box
+                sx={{ bgcolor: "primary.main", color: "common.white", p: 3 }}
+              >
                 <Typography variant="h5" fontWeight="bold">
                   Order Summary
                 </Typography>
@@ -801,7 +822,9 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
 
                   <Divider />
 
-                  <ListItem sx={{ py: 3, px: 3, bgcolor: "grey.50" }}>
+                  <ListItem
+                    sx={{ py: 3, px: 3, bgcolor: "background.default" }}
+                  >
                     <ListItemText
                       primary={
                         <Typography variant="h6" fontWeight="bold">
@@ -816,7 +839,16 @@ const Checkout = ({ user, onLogout, cartItemCount, onClearCart }) => {
                 </List>
 
                 {/* Security Badge */}
-                <Box sx={{ p: 3, textAlign: "center", bgcolor: "success.50" }}>
+                <Box
+                  sx={{
+                    p: 3,
+                    textAlign: "center",
+                    bgcolor: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? "success.dark"
+                        : "success.50",
+                  }}
+                >
                   <Lock sx={{ color: "success.main", mb: 1 }} />
                   <Typography
                     variant="body2"

@@ -6,7 +6,10 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "init-newsletter": "node scripts/initializeNewsletter.js",
+    "test-newsletter": "node scripts/testNewsletter.js",
+    "populate-newsletter": "node scripts/populateNewsletter.js"
   },
   "keywords": [
     "tech",

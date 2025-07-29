@@ -33,6 +33,7 @@ import {
   Stack,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -43,6 +44,7 @@ import { categoryAPI, productsAPI } from "../services/api";
 const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -172,7 +174,11 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
           cursor: "pointer",
           "&:hover": {
             transform: "translateY(-4px)",
-            boxShadow: "0 8px 25px rgba(0,0,0,0.12)",
+            boxShadow: `0 8px 25px ${
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.12)"
+                : "rgba(0,0,0,0.12)"
+            }`,
           },
           borderRadius: 3,
           overflow: "hidden",
@@ -207,7 +213,7 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                 top: 12,
                 left: 12,
                 bgcolor: "primary.main",
-                color: "white",
+                color: "primary.contrastText",
                 fontWeight: "bold",
               }}
             />
@@ -287,7 +293,10 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
           sx={{
             p: 2,
             justifyContent: "flex-end",
-            bgcolor: "grey.50",
+            bgcolor:
+              theme.palette.mode === "dark"
+                ? "background.paper"
+                : "background.default",
           }}
           onClick={handleActionClick}
         >
@@ -301,7 +310,7 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                   color: "info.main",
                   "&:hover": {
                     bgcolor: "info.light",
-                    color: "white",
+                    color: "info.contrastText",
                     transform: "scale(1.1)",
                   },
                   transition: "all 0.2s ease",
@@ -320,7 +329,7 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                   color: "error.main",
                   "&:hover": {
                     bgcolor: "error.light",
-                    color: "white",
+                    color: "error.contrastText",
                     transform: "scale(1.1)",
                   },
                   transition: "all 0.2s ease",
@@ -339,7 +348,7 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
               startIcon={<ShoppingCartIcon />}
               sx={{
                 bgcolor: "primary.main",
-                color: "white",
+                color: "primary.contrastText",
                 fontWeight: "bold",
                 textTransform: "none",
                 borderRadius: 2,
@@ -406,9 +415,9 @@ const Products = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
       {/* Hero Section */}
       <Box
         sx={{
-          bgcolor: "grey.50",
+          bgcolor: "background.default",
           borderBottom: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
           py: 4,
         }}
       >

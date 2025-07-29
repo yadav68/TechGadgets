@@ -19,6 +19,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -29,6 +30,7 @@ import { orderAPI } from "../services/api";
 const UserOrders = ({ user, onLogout, cartItemCount }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const theme = useTheme();
 
   useEffect(() => {
     fetchOrders();
@@ -61,30 +63,30 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
-        return "#ff9800";
+        return theme.palette.warning.main;
       case "processing":
-        return "#2196f3";
+        return theme.palette.info.main;
       case "shipped":
-        return "#9c27b0";
+        return theme.palette.secondary.main;
       case "delivered":
-        return "#4caf50";
+        return theme.palette.success.main;
       case "cancelled":
-        return "#f44336";
+        return theme.palette.error.main;
       default:
-        return "#757575";
+        return theme.palette.text.secondary;
     }
   };
 
   const getPaymentStatusColor = (status) => {
     switch (status) {
       case "pending":
-        return "#ff9800";
+        return theme.palette.warning.main;
       case "completed":
-        return "#4caf50";
+        return theme.palette.success.main;
       case "failed":
-        return "#f44336";
+        return theme.palette.error.main;
       default:
-        return "#757575";
+        return theme.palette.text.secondary;
     }
   };
 
@@ -98,7 +100,7 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
             justifyContent: "center",
             alignItems: "center",
             minHeight: "calc(100vh - 140px)",
-            bgcolor: "grey.50",
+            bgcolor: "background.default",
           }}
         >
           <CircularProgress size={48} />
@@ -115,9 +117,9 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
       {/* Hero Section */}
       <Box
         sx={{
-          bgcolor: "grey.50",
+          bgcolor: "background.default",
           borderBottom: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
           py: 4,
         }}
       >
@@ -186,7 +188,11 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
                   "&:hover": {
                     borderColor: "primary.dark",
                     transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    boxShadow: `0 4px 12px ${
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.15)"
+                        : "rgba(0,0,0,0.15)"
+                    }`,
                   },
                   transition: "all 0.2s ease-in-out",
                 }}
@@ -203,14 +209,14 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
                   p: 6,
                   borderRadius: 3,
                   border: "1px solid",
-                  borderColor: "grey.200",
-                  bgcolor: "white",
+                  borderColor: "divider",
+                  bgcolor: "background.paper",
                 }}
               >
                 <ReceiptIcon
                   sx={{
                     fontSize: 64,
-                    color: "grey.400",
+                    color: "text.disabled",
                     mb: 2,
                   }}
                 />
@@ -242,10 +248,18 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
                     fontWeight: 600,
                     px: 4,
                     py: 1.5,
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    boxShadow: `0 4px 12px ${
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.15)"
+                        : "rgba(0,0,0,0.15)"
+                    }`,
                     "&:hover": {
                       transform: "translateY(-2px)",
-                      boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
+                      boxShadow: `0 6px 20px ${
+                        theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.2)"
+                          : "rgba(0,0,0,0.2)"
+                      }`,
                     },
                     transition: "all 0.2s ease-in-out",
                   }}
@@ -259,14 +273,14 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
                 sx={{
                   borderRadius: 3,
                   border: "1px solid",
-                  borderColor: "grey.200",
+                  borderColor: "divider",
                   overflow: "hidden",
                 }}
               >
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="user orders table">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: "grey.50" }}>
+                      <TableRow sx={{ bgcolor: "background.default" }}>
                         <TableCell
                           sx={{
                             fontWeight: "bold",
@@ -331,7 +345,7 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
                           sx={{
                             "&:last-child td, &:last-child th": { border: 0 },
                             "&:hover": {
-                              bgcolor: "grey.50",
+                              bgcolor: "action.hover",
                               transition: "background-color 0.2s ease-in-out",
                             },
                           }}
@@ -359,7 +373,7 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
                               size="small"
                               sx={{
                                 bgcolor: getStatusColor(order.status),
-                                color: "white",
+                                color: "common.white",
                                 fontWeight: "bold",
                                 borderRadius: 2,
                                 textTransform: "capitalize",
@@ -418,7 +432,11 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
                                   border: "2px solid",
                                   "&:hover": {
                                     transform: "translateY(-1px)",
-                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                    boxShadow: `0 2px 8px ${
+                                      theme.palette.mode === "dark"
+                                        ? "rgba(255,255,255,0.15)"
+                                        : "rgba(0,0,0,0.15)"
+                                    }`,
                                   },
                                   transition: "all 0.2s ease-in-out",
                                 }}
@@ -439,7 +457,11 @@ const UserOrders = ({ user, onLogout, cartItemCount }) => {
                                     border: "2px solid",
                                     "&:hover": {
                                       transform: "translateY(-1px)",
-                                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                      boxShadow: `0 2px 8px ${
+                                        theme.palette.mode === "dark"
+                                          ? "rgba(255,255,255,0.15)"
+                                          : "rgba(0,0,0,0.15)"
+                                      }`,
                                     },
                                     transition: "all 0.2s ease-in-out",
                                   }}

@@ -103,7 +103,7 @@ const Cart = ({
             justifyContent: "center",
             alignItems: "center",
             minHeight: "calc(100vh - 140px)",
-            bgcolor: "grey.50",
+            bgcolor: "background.default",
           }}
         >
           <CircularProgress size={48} />
@@ -120,9 +120,9 @@ const Cart = ({
       {/* Hero Section */}
       <Box
         sx={{
-          bgcolor: "grey.50",
+          bgcolor: "background.default",
           borderBottom: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
           py: 4,
         }}
       >

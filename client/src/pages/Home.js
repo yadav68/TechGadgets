@@ -8,6 +8,7 @@ import {
   TrendingUp as TrendingUpIcon,
 } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -32,7 +33,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { categoryAPI, productsAPI } from "../services/api";
+import { categoryAPI, newsletterAPI, productsAPI } from "../services/api";
 
 const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   // ==================== STATE MANAGEMENT ====================
@@ -41,6 +42,9 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   const [loading, setLoading] = useState(true);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [email, setEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+  const [newsletterError, setNewsletterError] = useState("");
 
   // ==================== RESPONSIVE BREAKPOINTS ====================
   const theme = useTheme();
@@ -96,13 +100,35 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   /**
    * Handles newsletter subscription
    */
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
-    if (email) {
-      // TODO: Implement newsletter subscription API call
-      console.log("Subscribing email:", email);
+
+    if (!email) {
+      setNewsletterError("Email is required");
+      return;
+    }
+
+    if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+      setNewsletterError("Please enter a valid email address");
+      return;
+    }
+
+    setNewsletterLoading(true);
+    setNewsletterError("");
+    setNewsletterMessage("");
+
+    try {
+      const response = await newsletterAPI.subscribe(email);
+      setNewsletterMessage(response.message);
       setEmail("");
-      // You can show a success message here
+      // Clear success message after 5 seconds
+      setTimeout(() => setNewsletterMessage(""), 5000);
+    } catch (err) {
+      setNewsletterError(err.error || "Error subscribing to newsletter");
+      // Clear error message after 5 seconds
+      setTimeout(() => setNewsletterError(""), 5000);
+    } finally {
+      setNewsletterLoading(false);
     }
   };
 
@@ -136,7 +162,11 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
           cursor: "pointer",
           "&:hover": {
             transform: "translateY(-4px)",
-            boxShadow: "0 8px 25px rgba(0,0,0,0.12)",
+            boxShadow: `0 8px 25px ${
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.12)"
+                : "rgba(0,0,0,0.12)"
+            }`,
           },
           borderRadius: 3,
           overflow: "hidden",
@@ -171,7 +201,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                 top: 12,
                 left: 12,
                 bgcolor: "primary.main",
-                color: "white",
+                color: "primary.contrastText",
                 fontWeight: "bold",
               }}
             />
@@ -251,7 +281,10 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
           sx={{
             p: 2,
             justifyContent: "flex-end",
-            bgcolor: "grey.50",
+            bgcolor:
+              theme.palette.mode === "dark"
+                ? "background.paper"
+                : "background.default",
           }}
           onClick={handleActionClick}
         >
@@ -265,7 +298,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                   color: "info.main",
                   "&:hover": {
                     bgcolor: "info.light",
-                    color: "white",
+                    color: "info.contrastText",
                     transform: "scale(1.1)",
                   },
                   transition: "all 0.2s ease",
@@ -284,7 +317,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                   color: "error.main",
                   "&:hover": {
                     bgcolor: "error.light",
-                    color: "white",
+                    color: "error.contrastText",
                     transform: "scale(1.1)",
                   },
                   transition: "all 0.2s ease",
@@ -303,7 +336,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
               startIcon={<ShoppingCartIcon />}
               sx={{
                 bgcolor: "primary.main",
-                color: "white",
+                color: "primary.contrastText",
                 fontWeight: "bold",
                 textTransform: "none",
                 borderRadius: 2,
@@ -337,12 +370,16 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
         textAlign: "center",
         height: "100%",
         border: "1px solid",
-        borderColor: "grey.200",
+        borderColor: "divider",
         borderRadius: 2,
         transition: "all 0.3s ease",
         "&:hover": {
           transform: "translateY(-4px)",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
+          boxShadow: `0 8px 25px ${
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.1)"
+              : "rgba(0,0,0,0.1)"
+          }`,
           borderColor: "primary.main",
         },
       }}
@@ -375,7 +412,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
         textDecoration: "none",
         color: "inherit",
         border: "1px solid",
-        borderColor: "grey.200",
+        borderColor: "divider",
         borderRadius: 2,
         height: "200px", // Fixed height for consistency
         width: "100%", // Full width within grid
@@ -386,7 +423,11 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
         transition: "all 0.3s ease",
         "&:hover": {
           transform: "translateY(-4px)",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+          boxShadow: `0 8px 25px ${
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.15)"
+              : "rgba(0,0,0,0.15)"
+          }`,
           borderColor: "primary.main",
         },
       }}
@@ -482,8 +523,11 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
       {/* ==================== HERO SECTION ==================== */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          color: "white",
+          background:
+            theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, #2c3e50 0%, #34495e 100%)"
+              : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "common.white",
           py: { xs: 6, sm: 8, md: 12 },
           position: "relative",
           overflow: "hidden",
@@ -502,11 +546,21 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                     gutterBottom
                     sx={{
                       background:
-                        "linear-gradient(45deg, #fff 30%, #f0f0f0 90%)",
+                        theme.palette.mode === "dark"
+                          ? "linear-gradient(45deg, #ecf0f1 30%, #bdc3c7 90%)"
+                          : "linear-gradient(45deg, #fff 30%, #f0f0f0 90%)",
                       backgroundClip: "text",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       fontSize: { xs: "2rem", sm: "2.5rem", md: "3.5rem" },
+                      // Fallback for browsers that don't support background-clip: text
+                      "@supports not (background-clip: text)": {
+                        color: "common.white",
+                        textShadow:
+                          theme.palette.mode === "dark"
+                            ? "2px 2px 4px rgba(0,0,0,0.5)"
+                            : "2px 2px 4px rgba(0,0,0,0.3)",
+                      },
                     }}
                   >
                     Discover the Future of Tech
@@ -515,9 +569,14 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                     variant={isMobile ? "body1" : "h5"}
                     sx={{
                       mb: 4,
-                      opacity: 0.9,
+                      opacity: 0.95,
                       fontWeight: 300,
                       fontSize: { xs: "1rem", sm: "1.25rem", md: "1.5rem" },
+                      color: "common.white",
+                      textShadow:
+                        theme.palette.mode === "dark"
+                          ? "1px 1px 2px rgba(0,0,0,0.8)"
+                          : "1px 1px 2px rgba(0,0,0,0.5)",
                     }}
                   >
                     Premium gadgets, cutting-edge technology, and unbeatable
@@ -536,11 +595,28 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                       variant="contained"
                       size="large"
                       sx={{
-                        bgcolor: "white",
-                        color: "primary.main",
+                        bgcolor:
+                          theme.palette.mode === "dark"
+                            ? "primary.main"
+                            : "background.paper",
+                        color:
+                          theme.palette.mode === "dark"
+                            ? "primary.contrastText"
+                            : "primary.main",
                         "&:hover": {
-                          bgcolor: "grey.100",
+                          bgcolor:
+                            theme.palette.mode === "dark"
+                              ? "primary.dark"
+                              : "rgba(255, 255, 255, 0.95)",
+                          color:
+                            theme.palette.mode === "dark"
+                              ? "primary.contrastText"
+                              : "primary.main",
                           transform: "translateY(-2px)",
+                          boxShadow:
+                            theme.palette.mode === "dark"
+                              ? "0 8px 32px rgba(25, 118, 210, 0.4)"
+                              : "0 8px 32px rgba(0, 0, 0, 0.2)",
                         },
                         transition: "all 0.3s ease",
                         borderRadius: 2,
@@ -555,11 +631,23 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                       variant="outlined"
                       size="large"
                       sx={{
-                        borderColor: "white",
-                        color: "white",
+                        borderColor: "common.white",
+                        color: "common.white",
                         "&:hover": {
-                          borderColor: "white",
-                          bgcolor: "rgba(255,255,255,0.1)",
+                          borderColor: "common.white",
+                          bgcolor:
+                            theme.palette.mode === "dark"
+                              ? "rgba(255, 255, 255, 0.15)"
+                              : "rgba(255, 255, 255, 0.2)",
+                          color:
+                            theme.palette.mode === "dark"
+                              ? "common.white"
+                              : "primary.main",
+                          transform: "translateY(-2px)",
+                          boxShadow:
+                            theme.palette.mode === "dark"
+                              ? "0 8px 32px rgba(255, 255, 255, 0.1)"
+                              : "0 8px 32px rgba(0, 0, 0, 0.15)",
                         },
                         borderRadius: 2,
                         px: 4,
@@ -586,7 +674,11 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                       maxWidth: isMobile ? "300px" : "500px",
                       height: "auto",
                       borderRadius: "20px",
-                      boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+                      boxShadow: `0 20px 40px ${
+                        theme.palette.mode === "dark"
+                          ? "rgba(0,0,0,0.6)"
+                          : "rgba(0,0,0,0.3)"
+                      }`,
                     }}
                   />
                 </Box>
@@ -597,7 +689,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
       </Box>
 
       {/* ==================== FEATURES SECTION ==================== */}
-      <Box sx={{ py: { xs: 6, sm: 8 }, bgcolor: "grey.50" }}>
+      <Box sx={{ py: { xs: 6, sm: 8 }, bgcolor: "background.default" }}>
         <Container maxWidth="lg">
           <Grid container spacing={{ xs: 3, sm: 4 }}>
             {features.map((feature, index) => (
@@ -662,7 +754,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
 
       {/* ==================== FEATURED PRODUCTS SECTION ==================== */}
       {featuredProducts.length > 0 && (
-        <Box sx={{ py: { xs: 6, sm: 8 }, bgcolor: "grey.50" }}>
+        <Box sx={{ py: { xs: 6, sm: 8 }, bgcolor: "background.default" }}>
           <Container maxWidth="lg">
             {/* Section Header */}
             <Box
@@ -740,8 +832,11 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
       <Box
         sx={{
           py: { xs: 6, sm: 8 },
-          background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
-          color: "white",
+          background:
+            theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, #34495e 0%, #2c3e50 100%)"
+              : "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+          color: "common.white",
         }}
       >
         <Container maxWidth="md">
@@ -750,12 +845,27 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
               variant={isMobile ? "h5" : "h4"}
               fontWeight="bold"
               gutterBottom
+              sx={{
+                color: "common.white",
+                textShadow:
+                  theme.palette.mode === "dark"
+                    ? "2px 2px 4px rgba(0,0,0,0.8)"
+                    : "2px 2px 4px rgba(0,0,0,0.5)",
+              }}
             >
               Stay Updated
             </Typography>
             <Typography
               variant={isMobile ? "body1" : "h6"}
-              sx={{ mb: 4, opacity: 0.9 }}
+              sx={{
+                mb: 4,
+                opacity: 0.9,
+                color: "common.white",
+                textShadow:
+                  theme.palette.mode === "dark"
+                    ? "1px 1px 2px rgba(0,0,0,0.8)"
+                    : "1px 1px 2px rgba(0,0,0,0.5)",
+              }}
             >
               Get the latest updates on new products and exclusive offers
             </Typography>
@@ -766,7 +876,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
               onSubmit={handleSubscribe}
               direction={{ xs: "column", sm: "row" }}
               spacing={2}
-              sx={{ maxWidth: 500, mx: "auto" }}
+              sx={{ maxWidth: 500, mx: "auto", mb: 3 }}
             >
               <Box sx={{ flexGrow: 1 }}>
                 <input
@@ -775,32 +885,94 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={newsletterLoading}
                   style={{
                     width: "100%",
                     padding: "12px 16px",
                     borderRadius: "8px",
-                    border: "none",
+                    border: "2px solid transparent",
                     fontSize: "16px",
                     fontFamily: "inherit",
+                    backgroundColor: newsletterLoading
+                      ? theme.palette.action.disabledBackground
+                      : theme.palette.mode === "dark"
+                      ? theme.palette.background.paper
+                      : theme.palette.background.paper,
+                    color: theme.palette.text.primary,
+                    outline: "none",
+                    transition: "all 0.3s ease",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = theme.palette.primary.main;
+                    e.target.style.boxShadow = `0 0 0 2px ${theme.palette.primary.main}33`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "transparent";
+                    e.target.style.boxShadow = "none";
                   }}
                 />
               </Box>
               <Button
                 type="submit"
                 variant="contained"
+                disabled={newsletterLoading}
                 sx={{
-                  bgcolor: "white",
-                  color: "primary.main",
-                  "&:hover": { bgcolor: "grey.100" },
+                  bgcolor:
+                    theme.palette.mode === "dark"
+                      ? "primary.main"
+                      : "background.paper",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? "primary.contrastText"
+                      : "primary.main",
+                  "&:hover": {
+                    bgcolor:
+                      theme.palette.mode === "dark"
+                        ? "primary.dark"
+                        : "rgba(255, 255, 255, 0.95)",
+                    color:
+                      theme.palette.mode === "dark"
+                        ? "primary.contrastText"
+                        : "primary.main",
+                    transform: "translateY(-2px)",
+                    boxShadow:
+                      theme.palette.mode === "dark"
+                        ? "0 8px 32px rgba(25, 118, 210, 0.4)"
+                        : "0 8px 32px rgba(0, 0, 0, 0.2)",
+                  },
+                  "&:disabled": {
+                    bgcolor: "action.disabledBackground",
+                    color: "text.disabled",
+                  },
                   px: 3,
                   py: 1.5,
                   borderRadius: 2,
                   minWidth: { xs: "100%", sm: "auto" },
                 }}
               >
-                Subscribe
+                {newsletterLoading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  "Subscribe"
+                )}
               </Button>
             </Stack>
+
+            {/* Success/Error Messages */}
+            {newsletterMessage && (
+              <Alert
+                severity="success"
+                sx={{ maxWidth: 500, mx: "auto", mb: 2 }}
+              >
+                {newsletterMessage}
+              </Alert>
+            )}
+
+            {newsletterError && (
+              <Alert severity="error" sx={{ maxWidth: 500, mx: "auto", mb: 2 }}>
+                {newsletterError}
+              </Alert>
+            )}
           </Box>
         </Container>
       </Box>

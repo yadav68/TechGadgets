@@ -129,6 +129,21 @@ export const adminAPI = {
     apiCall(`/admin/users/${userId}`, {
       method: "DELETE",
     }),
+
+  getNewsletters: (page = 1, limit = 10) =>
+    apiCall(`/admin/newsletters?page=${page}&limit=${limit}`, {
+      method: "GET",
+    }),
+
+  deleteNewsletter: (id) =>
+    apiCall(`/admin/newsletters/${id}`, {
+      method: "DELETE",
+    }),
+
+  exportNewsletters: () => {
+    const url = `${API_BASE_URL}/admin/newsletters/export`;
+    window.open(url, "_blank");
+  },
 };
 
 // Category API calls
@@ -182,6 +197,15 @@ export const orderAPI = {
     }),
 
   cancel: (id) => apiCall(`/orders/${id}/cancel`, { method: "PUT" }),
+};
+
+// Newsletter API calls
+export const newsletterAPI = {
+  subscribe: (email) =>
+    apiCall("/newsletter/subscribe", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
 };
 
 // Homepage API call

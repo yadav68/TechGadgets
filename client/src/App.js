@@ -7,10 +7,13 @@ import {
   Routes,
   useParams,
 } from "react-router-dom";
+import DarkModeTest from "./components/DarkModeTest";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Toast from "./components/Toast";
+import { DarkModeProvider, useDarkMode } from "./contexts/DarkModeContext";
 import AdminCategories from "./pages/AdminCategories";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminNewsletters from "./pages/AdminNewsletters";
 import AdminOrders from "./pages/AdminOrders";
 import AdminProducts from "./pages/AdminProducts";
 import { AdminUsers } from "./pages/AdminUsers";
@@ -27,7 +30,7 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import UserOrders from "./pages/UserOrders";
 import { adminAPI, authAPI, cartAPI, productsAPI } from "./services/api";
-import theme from "./theme";
+import { createAppTheme } from "./theme";
 
 // Wrapper components to handle route parameters
 const ProductDetailWrapper = ({
@@ -81,6 +84,17 @@ const ProductEditWrapper = ({
 };
 
 function App() {
+  return (
+    <DarkModeProvider>
+      <AppContent />
+    </DarkModeProvider>
+  );
+}
+
+function AppContent() {
+  const { mode } = useDarkMode();
+  const theme = createAppTheme(mode);
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -324,6 +338,8 @@ function App() {
               }
             />
 
+            <Route path="/dark-mode-test" element={<DarkModeTest />} />
+
             <Route
               path="/login"
               element={
@@ -548,6 +564,19 @@ function App() {
                     successMsg={successMsg}
                     errorMsg={error}
                     error=""
+                    onLogout={handleLogout}
+                    cartItemCount={cartItemCount}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/newsletters"
+              element={
+                <ProtectedRoute user={user} isAdmin={true}>
+                  <AdminNewsletters
+                    user={user}
                     onLogout={handleLogout}
                     cartItemCount={cartItemCount}
                   />
