@@ -1,18 +1,29 @@
-import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
 import { adminAPI } from "../services/api";
-import { Container, Typography, Grid, Card, CardContent, Button, Box, CircularProgress } from '@mui/material';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
   const [dashboardData, setDashboardData] = useState({
     products: [],
     users: [],
+    newsletters: [],
     totalProducts: 0,
     totalUsers: 0,
     totalCategories: 0,
-    totalOrders: 0
+    totalOrders: 0,
+    totalNewsletters: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +36,7 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
       const data = await adminAPI.getDashboard();
       setDashboardData(data);
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      console.error("Error fetching dashboard data:", err);
     } finally {
       setLoading(false);
     }
@@ -35,7 +46,14 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
     return (
       <>
         <Header user={user} onLogout={onLogout} cartItemCount={cartItemCount} />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "80vh",
+          }}
+        >
           <CircularProgress />
         </Box>
         <Footer />
@@ -52,7 +70,7 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
         </Typography>
 
         <Grid container spacing={3} sx={{ mb: 5 }}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2.4}>
             <Card>
               <CardContent>
                 <Typography variant="h6" component="h3">
@@ -61,13 +79,18 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
                 <Typography variant="h4" color="primary">
                   {dashboardData.totalProducts}
                 </Typography>
-                <Button component={Link} to="/admin/products" variant="text" sx={{ mt: 2 }}>
+                <Button
+                  component={Link}
+                  to="/admin/products"
+                  variant="text"
+                  sx={{ mt: 2 }}
+                >
                   Manage Products
                 </Button>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2.4}>
             <Card>
               <CardContent>
                 <Typography variant="h6" component="h3">
@@ -76,13 +99,18 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
                 <Typography variant="h4" color="primary">
                   {dashboardData.totalUsers}
                 </Typography>
-                <Button component={Link} to="/admin/users" variant="text" sx={{ mt: 2 }}>
+                <Button
+                  component={Link}
+                  to="/admin/users"
+                  variant="text"
+                  sx={{ mt: 2 }}
+                >
                   Manage Users
                 </Button>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2.4}>
             <Card>
               <CardContent>
                 <Typography variant="h6" component="h3">
@@ -91,13 +119,18 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
                 <Typography variant="h4" color="primary">
                   {dashboardData.totalCategories || 0}
                 </Typography>
-                <Button component={Link} to="/admin/categories" variant="text" sx={{ mt: 2 }}>
+                <Button
+                  component={Link}
+                  to="/admin/categories"
+                  variant="text"
+                  sx={{ mt: 2 }}
+                >
                   Manage Categories
                 </Button>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2.4}>
             <Card>
               <CardContent>
                 <Typography variant="h6" component="h3">
@@ -106,8 +139,33 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
                 <Typography variant="h4" color="primary">
                   {dashboardData.totalOrders || 0}
                 </Typography>
-                <Button component={Link} to="/admin/orders" variant="text" sx={{ mt: 2 }}>
+                <Button
+                  component={Link}
+                  to="/admin/orders"
+                  variant="text"
+                  sx={{ mt: 2 }}
+                >
                   Manage Orders
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2.4}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" component="h3">
+                  Newsletter Subs
+                </Typography>
+                <Typography variant="h4" color="primary">
+                  {dashboardData.totalNewsletters || 0}
+                </Typography>
+                <Button
+                  component={Link}
+                  to="/admin/newsletters"
+                  variant="text"
+                  sx={{ mt: 2 }}
+                >
+                  Manage Newsletters
                 </Button>
               </CardContent>
             </Card>
@@ -125,15 +183,34 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
                   <Typography>No products found.</Typography>
                 ) : (
                   <Box>
-                    {dashboardData.products.map(product => (
-                      <Box key={product._id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
-                        <Typography variant="subtitle1">{product.name}</Typography>
+                    {dashboardData.products.map((product) => (
+                      <Box
+                        key={product._id}
+                        sx={{ mb: 2, pb: 2, borderBottom: "1px solid #eee" }}
+                      >
+                        <Typography variant="subtitle1">
+                          {product.name}
+                        </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          ${product.price.toFixed(2)} - {product.category?.name || 'No Category'}
+                          ${product.price.toFixed(2)} -{" "}
+                          {product.category?.name || "No Category"}
                         </Typography>
                         <Box sx={{ mt: 1 }}>
-                          <Button component={Link} to={`/products/${product._id}`} size="small" sx={{ mr: 1 }}>View</Button>
-                          <Button component={Link} to={`/products/${product._id}/edit`} size="small">Edit</Button>
+                          <Button
+                            component={Link}
+                            to={`/products/${product._id}`}
+                            size="small"
+                            sx={{ mr: 1 }}
+                          >
+                            View
+                          </Button>
+                          <Button
+                            component={Link}
+                            to={`/products/${product._id}/edit`}
+                            size="small"
+                          >
+                            Edit
+                          </Button>
                         </Box>
                       </Box>
                     ))}
@@ -152,14 +229,23 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
                   <Typography>No users found.</Typography>
                 ) : (
                   <Box>
-                    {dashboardData.users.map(u => (
-                      <Box key={u._id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
-                        <Typography variant="subtitle1">{u.username}</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {u.email} - {u.isAdmin ? 'Admin' : 'User'}
+                    {dashboardData.users.map((u) => (
+                      <Box
+                        key={u._id}
+                        sx={{ mb: 2, pb: 2, borderBottom: "1px solid #eee" }}
+                      >
+                        <Typography variant="subtitle1">
+                          {u.username}
                         </Typography>
-                        <Button size="small" onClick={() => onToggleAdmin(u._id)} sx={{ mt: 1 }}>
-                          {u.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                        <Typography variant="body2" color="text.secondary">
+                          {u.email} - {u.isAdmin ? "Admin" : "User"}
+                        </Typography>
+                        <Button
+                          size="small"
+                          onClick={() => onToggleAdmin(u._id)}
+                          sx={{ mt: 1 }}
+                        >
+                          {u.isAdmin ? "Remove Admin" : "Make Admin"}
                         </Button>
                       </Box>
                     ))}
@@ -170,12 +256,22 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
           </Grid>
         </Grid>
 
-        <Box sx={{ mt: 5, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <Button component={Link} to="/products/new" variant="contained">Add New Product</Button>
-          <Button component={Link} to="/admin/products" variant="outlined">View All Products</Button>
-          <Button component={Link} to="/admin/users" variant="outlined">View All Users</Button>
-          <Button component={Link} to="/admin/categories" variant="outlined">Manage Categories</Button>
-          <Button component={Link} to="/admin/orders" variant="outlined">Manage Orders</Button>
+        <Box sx={{ mt: 5, display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <Button component={Link} to="/products/new" variant="contained">
+            Add New Product
+          </Button>
+          <Button component={Link} to="/admin/products" variant="outlined">
+            View All Products
+          </Button>
+          <Button component={Link} to="/admin/users" variant="outlined">
+            View All Users
+          </Button>
+          <Button component={Link} to="/admin/categories" variant="outlined">
+            Manage Categories
+          </Button>
+          <Button component={Link} to="/admin/orders" variant="outlined">
+            Manage Orders
+          </Button>
         </Box>
       </Container>
       <Footer />
@@ -183,4 +279,4 @@ const AdminDashboard = ({ user, onToggleAdmin, onLogout, cartItemCount }) => {
   );
 };
 
-export default AdminDashboard; 
+export default AdminDashboard;

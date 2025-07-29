@@ -8,6 +8,7 @@ import {
   TrendingUp as TrendingUpIcon,
 } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -32,7 +33,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { categoryAPI, productsAPI } from "../services/api";
+import { categoryAPI, newsletterAPI, productsAPI } from "../services/api";
 
 const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   // ==================== STATE MANAGEMENT ====================
@@ -41,6 +42,9 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   const [loading, setLoading] = useState(true);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [email, setEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+  const [newsletterError, setNewsletterError] = useState("");
 
   // ==================== RESPONSIVE BREAKPOINTS ====================
   const theme = useTheme();
@@ -96,13 +100,35 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
   /**
    * Handles newsletter subscription
    */
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
-    if (email) {
-      // TODO: Implement newsletter subscription API call
-      console.log("Subscribing email:", email);
+
+    if (!email) {
+      setNewsletterError("Email is required");
+      return;
+    }
+
+    if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+      setNewsletterError("Please enter a valid email address");
+      return;
+    }
+
+    setNewsletterLoading(true);
+    setNewsletterError("");
+    setNewsletterMessage("");
+
+    try {
+      const response = await newsletterAPI.subscribe(email);
+      setNewsletterMessage(response.message);
       setEmail("");
-      // You can show a success message here
+      // Clear success message after 5 seconds
+      setTimeout(() => setNewsletterMessage(""), 5000);
+    } catch (err) {
+      setNewsletterError(err.error || "Error subscribing to newsletter");
+      // Clear error message after 5 seconds
+      setTimeout(() => setNewsletterError(""), 5000);
+    } finally {
+      setNewsletterLoading(false);
     }
   };
 
@@ -766,7 +792,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
               onSubmit={handleSubscribe}
               direction={{ xs: "column", sm: "row" }}
               spacing={2}
-              sx={{ maxWidth: 500, mx: "auto" }}
+              sx={{ maxWidth: 500, mx: "auto", mb: 3 }}
             >
               <Box sx={{ flexGrow: 1 }}>
                 <input
@@ -775,6 +801,7 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={newsletterLoading}
                   style={{
                     width: "100%",
                     padding: "12px 16px",
@@ -782,25 +809,48 @@ const Home = ({ user, onLogout, cartItemCount, onAddToCart, onDelete }) => {
                     border: "none",
                     fontSize: "16px",
                     fontFamily: "inherit",
+                    backgroundColor: newsletterLoading ? "#f5f5f5" : "white",
                   }}
                 />
               </Box>
               <Button
                 type="submit"
                 variant="contained"
+                disabled={newsletterLoading}
                 sx={{
                   bgcolor: "white",
                   color: "primary.main",
                   "&:hover": { bgcolor: "grey.100" },
+                  "&:disabled": { bgcolor: "grey.300", color: "grey.600" },
                   px: 3,
                   py: 1.5,
                   borderRadius: 2,
                   minWidth: { xs: "100%", sm: "auto" },
                 }}
               >
-                Subscribe
+                {newsletterLoading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  "Subscribe"
+                )}
               </Button>
             </Stack>
+
+            {/* Success/Error Messages */}
+            {newsletterMessage && (
+              <Alert
+                severity="success"
+                sx={{ maxWidth: 500, mx: "auto", mb: 2 }}
+              >
+                {newsletterMessage}
+              </Alert>
+            )}
+
+            {newsletterError && (
+              <Alert severity="error" sx={{ maxWidth: 500, mx: "auto", mb: 2 }}>
+                {newsletterError}
+              </Alert>
+            )}
           </Box>
         </Container>
       </Box>

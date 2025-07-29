@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Toast from "./components/Toast";
 import AdminCategories from "./pages/AdminCategories";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminNewsletters from "./pages/AdminNewsletters";
 import AdminOrders from "./pages/AdminOrders";
 import AdminProducts from "./pages/AdminProducts";
 import { AdminUsers } from "./pages/AdminUsers";
@@ -548,6 +549,19 @@ function App() {
                     successMsg={successMsg}
                     errorMsg={error}
                     error=""
+                    onLogout={handleLogout}
+                    cartItemCount={cartItemCount}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/newsletters"
+              element={
+                <ProtectedRoute user={user} isAdmin={true}>
+                  <AdminNewsletters
+                    user={user}
                     onLogout={handleLogout}
                     cartItemCount={cartItemCount}
                   />
